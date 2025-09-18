@@ -24,6 +24,8 @@
         "typescript-eslint": "^8.23.0"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.2.2",
+        "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/react": "^2.0.0",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/react-query": "^5.89.0",
@@ -38,10 +40,12 @@
         "laravel-vite-plugin": "^2.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
+        "react-hook-form": "^7.62.0",
         "tailwind-merge": "^3.0.1",
         "tailwindcss": "^4.0.0",
         "typescript": "^5.7.2",
-        "vite": "^7.0.4"
+        "vite": "^7.0.4",
+        "yup": "^1.7.0"
     },
     "optionalDependencies": {
         "@rollup/rollup-linux-x64-gnu": "4.9.5",
