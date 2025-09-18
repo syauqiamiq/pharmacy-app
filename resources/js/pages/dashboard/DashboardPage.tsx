@@ -1,13 +1,14 @@
-import { usePage } from '@inertiajs/react'
-import React from 'react'
-
-
+import DashboardLayout from '@/lib/layouts/DashboardLayout';
+import { usePage } from '@inertiajs/react';
 
 const Dashboard = () => {
-  const props= usePage().props as any
-  return (
-    <div>Hi Bro, {props.auth.user.name}</div>
-  )
-}
+    const { props }: { props: any; url?: string } = usePage();
 
-export default Dashboard
+    return (
+        <DashboardLayout breadcrumbItems={[{ title: 'Dashboard' }]}>
+            <div className="text-2xl font-bold">Welcome back, {props.auth.user.name}!</div>
+        </DashboardLayout>
+    );
+};
+
+export default Dashboard;
