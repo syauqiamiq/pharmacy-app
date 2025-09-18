@@ -2,18 +2,33 @@
 
 namespace App\Http\Controllers\V1\Auth\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthenticationService
 {
-    /**
-     * Melakukan login user dan handle session untuk Inertia frontend.
-     * @param array $credentials
-     * @param \Illuminate\Http\Request $request
-     * @return array [success => bool, message => string|null]
-     */
+
     public function login(array $credentials, $request): array
     {
+        // Find User by Email
+        $user = User::where('email', $credentials['email'])->first();
+        // Check Password Match
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return [
+                'success' => false,
+                'message' => 'Email atau password salah.',
+            ];
+        }
+
+        // Check User Active
+        if (!$user->is_active) {
+            return [
+                'success' => false,
+                'message' => 'Akun tidak aktif.',
+            ];
+        }
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return [
@@ -25,5 +40,14 @@ class AuthenticationService
             'success' => false,
             'message' => 'Email atau password salah.',
         ];
+    }
+
+    public function logout($request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
     }
 }

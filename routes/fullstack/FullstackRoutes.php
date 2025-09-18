@@ -1,0 +1,19 @@
+
+<?php
+
+use App\Http\Middleware\MustAuthenticated;
+use Illuminate\Support\Facades\Route;
+
+
+
+Route::group([
+    'name' => "AuthRoutes",
+    'prefix' => null,
+    "middleware" => []
+], base_path('routes/fullstack/AuthRoutes.php'));
+
+Route::group([
+    'name' => "DashboardRoutes",
+    'prefix' => null,
+    "middleware" => [MustAuthenticated::class]
+], base_path('routes/fullstack/DashboardRoutes.php'));

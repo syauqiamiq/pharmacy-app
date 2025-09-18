@@ -1,36 +1,60 @@
-import { TablePaginationConfig, TableProps } from "antd";
-import { ReactNode } from "react";
+import { TablePaginationConfig, TableProps } from 'antd';
+import { ReactNode } from 'react';
 
-export type TOrder = "ASC" | "DESC";
+export type TSort = 'ASC' | 'DESC';
+export type TOptionalChange<T extends object = object> = <
+  K extends keyof (IPaginateRequest & T)
+>(
+  key: K,
+  value: (IPaginateRequest & T)[K]
+) => void;
 
 export interface IPaginateRequest {
-	q?: string;
-	perPage?: number;
-	currentPage?: number;
-	order?: TOrder;
-	orderBy?: string;
+  search?: string;
+  limit?: number;
+  page?: number;
+  sort?: TSort;
+  orderBy?: string;
 }
 
-export interface IBaseTableProps {
-	onPageChange?: TablePaginationConfig["onChange"];
-	onSizeChange?: TablePaginationConfig["onShowSizeChange"];
-	onTableChange?: TableProps<any>["onChange"];
-	onSearchChange?: (v: string | any) => void;
-	columns: TableProps<any>["columns"];
-	data: TableProps<any>["dataSource"] | any;
-	withSearch?: boolean;
-	actionComponent?: ReactNode;
-	pageSizeOptions?: number[];
-	withQuickPageJumper?: boolean;
-	order?: string;
-	orderBy?: string;
-	className?: string;
-	isLoading?: boolean;
-	total?: number;
-	currentPage?: number;
-	pageSize?: number;
-	onSortChange?: (
-		orderBy: string | any,
-		orderDirection: "descend" | "ascend" | any
-	) => void;
+export interface IBaseTableProps<T = unknown> {
+  onPageChange?: TablePaginationConfig['onChange'];
+  onSizeChange?: TablePaginationConfig['onShowSizeChange'];
+  onTableChange?: TableProps<T>['onChange'];
+  onSearchChange?: (v: string) => void;
+  columns: TableProps<T>['columns'];
+  data: TableProps<T>['dataSource'];
+  rowKey?: string | ((record: T) => string);
+  rowSelection?: TableProps<T>['rowSelection'];
+  showHeader?: boolean;
+  withSearch?: boolean;
+  filterComponents?: ReactNode;
+  actionComponent?: ReactNode;
+  pageSizeOptions?: number[];
+  withQuickPageJumper?: boolean;
+  sort?: string;
+  orderBy?: string;
+  className?: string;
+  isLoading?: boolean;
+  total?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onSortChange?: (
+    orderBy: string | any,
+    orderDirection: 'descend' | 'ascend' | any
+  ) => void;
+  // Infinite scroll props
+  enableInfiniteScroll?: boolean;
+  isFetchingNextPage?: boolean;
+  hasNextPage?: boolean;
+  onLoadMore?: () => void;
+  loadMoreText?: string;
+  noMoreDataText?: string;
+  infiniteScrollType?: 'button' | 'scroll';
+  maxHeight?: number | string;
+  scrollThreshold?: number;
+  onRow?: TableProps<T>['onRow'];
+  rowClassName?: TableProps<T>['rowClassName'];
+  expandable?: TableProps<T>['expandable'];
+  scroll?: TableProps<T>['scroll'];
 }

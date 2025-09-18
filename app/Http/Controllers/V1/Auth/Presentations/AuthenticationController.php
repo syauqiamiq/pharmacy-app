@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\V1\Auth\Dto\Requests\LoginRequest;
 use App\Http\Controllers\V1\Auth\Services\AuthenticationService;
 use App\Traits\ApiFormatter;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Request;
 
 class AuthenticationController extends Controller
 {
@@ -27,13 +26,17 @@ class AuthenticationController extends Controller
         $result = $this->authenticationService->login($credentials, $request);
 
         if (!$result['success']) {
-            // Jika gagal, redirect back dengan error
             return redirect()->back()
-                ->withErrors(['email' => $result['message']])
+                ->withErrors(['message' => $result['message']])
                 ->withInput();
         }
 
-        // Jika sukses, redirect ke route bernama 'frontend.test-page'
-        return redirect()->route('frontend.test-page');
+
+        return redirect()->route('fe.dashboard');
+    }
+    public function logout(Request $request)
+    {
+        $this->authenticationService->logout($request);
+        return redirect()->route('fe.auth.login');
     }
 }

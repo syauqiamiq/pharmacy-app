@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\UserRole;
 
 class UserSeeder extends Seeder
 {
@@ -13,15 +15,56 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@dev.com'],
+        $createdAdmin =  User::create(
             [
                 'name' => 'Admin',
                 'email' => 'admin@dev.com',
                 'password' => Hash::make('admin123123'),
                 'is_active' => true,
-                'address' => 'Admin Address',
+                'address' => 'Jl. Pondok Jati',
             ]
         );
+
+        $adminRole = Role::where('name', 'Admin')->first();
+        if ($adminRole) {
+            UserRole::create([
+                'user_id' => $createdAdmin->id,
+                'role_id' => $adminRole->id,
+            ]);
+        }
+
+        $createdDoctor = User::create(
+            [
+                'name' => 'Doctor',
+                'email' => 'doctor@dev.com',
+                'password' => Hash::make('doctor123123'),
+                'is_active' => true,
+                'address' => 'Jl. Pondok Jati',
+            ]
+        );
+        $doctorRole = Role::where('name', 'Doctor')->first();
+        if ($doctorRole) {
+            UserRole::create([
+                'user_id' => $createdDoctor->id,
+                'role_id' => $doctorRole->id,
+            ]);
+        }
+
+        $createdPharmacist = User::create(
+            [
+                'name' => 'Pharmacist',
+                'email' => 'pharmacist@dev.com',
+                'password' => Hash::make('pharmacist123123'),
+                'is_active' => true,
+                'address' => 'Jl. Pondok Jati',
+            ]
+        );
+        $pharmacistRole = Role::where('name', 'Pharmacist')->first();
+        if ($pharmacistRole) {
+            UserRole::create([
+                'user_id' => $createdPharmacist->id,
+                'role_id' => $pharmacistRole->id,
+            ]);
+        }
     }
 }
