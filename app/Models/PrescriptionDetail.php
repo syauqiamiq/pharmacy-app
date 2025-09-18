@@ -3,8 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PrescriptionDetail extends Model
 {
-    //
+    use HasFactory, HasUuids, SoftDeletes;
+
+    protected $fillable = [
+        'prescription_id',
+        'medicine_id',
+        'medicine_name',
+        'dosage',
+        'frequency',
+        'duration',
+        'note',
+    ];
+
+    public function prescription()
+    {
+        return $this->belongsTo(Prescription::class);
+    }
 }
