@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('pharmacists', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->boolean('is_active')->default(true);
-            $table->string('name');
-            $table->string('email')->unique()->index();
-            $table->string('password');
-            $table->string('address');
+            $table->foreignUuid('user_id')->nullable()->index()->references("id")->on("users")->onDelete("SET NULL");
+            $table->string('license_number')->index();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('pharmacists');
     }
 };
