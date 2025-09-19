@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\V1\Auth\Presentations\AuthenticationController;
+use App\Http\Controllers\AuthenticationController;
 use App\Http\Middleware\CustomRedirectIfAuthenticated;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

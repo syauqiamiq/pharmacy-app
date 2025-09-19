@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Doctor;
+use App\Models\Pharmacist;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -33,7 +35,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        $createdDoctor = User::create(
+        $createdDoctorUser = User::create(
             [
                 'name' => 'Doctor',
                 'email' => 'doctor@dev.com',
@@ -42,15 +44,20 @@ class UserSeeder extends Seeder
                 'address' => 'Jl. Pondok Jati',
             ]
         );
+        Doctor::create([
+            'user_id' => $createdDoctorUser->id,
+            'specialization' => 'Dokter Umum',
+            'license_number' => '1231233123123',
+        ]);
         $doctorRole = Role::where('name', 'Doctor')->first();
         if ($doctorRole) {
             UserRole::create([
-                'user_id' => $createdDoctor->id,
+                'user_id' => $createdDoctorUser->id,
                 'role_id' => $doctorRole->id,
             ]);
         }
 
-        $createdPharmacist = User::create(
+        $createdPharmacistUser = User::create(
             [
                 'name' => 'Pharmacist',
                 'email' => 'pharmacist@dev.com',
@@ -59,10 +66,14 @@ class UserSeeder extends Seeder
                 'address' => 'Jl. Pondok Jati',
             ]
         );
+        Pharmacist::create([
+            'user_id' => $createdPharmacistUser->id,
+            'license_number' => '1231233123123',
+        ]);
         $pharmacistRole = Role::where('name', 'Pharmacist')->first();
         if ($pharmacistRole) {
             UserRole::create([
-                'user_id' => $createdPharmacist->id,
+                'user_id' => $createdPharmacistUser->id,
                 'role_id' => $pharmacistRole->id,
             ]);
         }

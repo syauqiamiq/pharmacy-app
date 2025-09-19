@@ -9,3 +9,10 @@ Route::group([
     'prefix' => null,
     "middleware" => []
 ], base_path('routes/fullstack/FullstackRoutes.php'));
+
+
+Route::group([
+    'name' => "ApiRoutes",
+    'prefix' => "api/v1",
+    "middleware" => []
+], base_path('routes/api/ApiRoutes.php'));

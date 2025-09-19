@@ -17,6 +17,7 @@ Route::group([
     'prefix' => null,
     "middleware" => [MustAuthenticated::class]
 ], base_path('routes/fullstack/DashboardRoutes.php'));
+
 Route::group([
     'name' => "DoctorRoutes",
     'prefix' => null,

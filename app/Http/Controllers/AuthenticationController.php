@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\V1\Auth\Presentations;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\V1\Auth\Dto\Requests\LoginRequest;
-use App\Http\Controllers\V1\Auth\Services\AuthenticationService;
+
+
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Services\Auth\AuthenticationService;
 use App\Traits\ApiFormatter;
 use Illuminate\Support\Facades\Request;
 

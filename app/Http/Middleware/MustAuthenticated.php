@@ -16,6 +16,7 @@ class MustAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
+
         if (Auth::check()) {
             return $next($request);
         }
