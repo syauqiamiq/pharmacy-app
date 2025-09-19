@@ -2,8 +2,7 @@ import { usePage } from '@inertiajs/react';
 import type { BreadcrumbProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import React from 'react';
-import { sideBar } from './side-bar/side-bar';
-import { topMenu } from './top-menu/top-menu';
+import { useMenuItemsWithAuth } from './utils/menu.utils';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -19,24 +18,23 @@ const DashboardLayout = ({ children, breadcrumbItems }: IDashboardLayoutProps) =
 
     const { url } = usePage();
 
+    const { topMenuItems, sideMenuItems, activeTopMenuKey, breadcrumbItems: autoBreadcrumbItems, shouldShowSidebar } = useMenuItemsWithAuth(url);
+
+    // Use provided breadcrumb items or auto-generated ones
+    const finalBreadcrumbItems = breadcrumbItems || autoBreadcrumbItems;
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <div className="demo-logo" />
-                <Menu
-                    theme="dark"
-                    mode="horizontal"
-                    defaultSelectedKeys={[url.split('/').length > 2 ? url.split('/')[1] : url]}
-                    items={topMenu}
-                    style={{ flex: 1, minWidth: 0 }}
-                />
+                <Menu theme="dark" mode="horizontal" selectedKeys={[activeTopMenuKey]} items={topMenuItems} style={{ flex: 1, minWidth: 0 }} />
             </Header>
             <div style={{ padding: '0 48px' }}>
-                <Breadcrumb style={{ margin: '16px 0' }} items={breadcrumbItems} />
+                <Breadcrumb style={{ margin: '16px 0' }} items={finalBreadcrumbItems} />
                 <Layout style={{ padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG, minHeight: '80vh' }}>
-                    {url !== '/dashboard' && (
+                    {shouldShowSidebar && (
                         <Sider breakpoint="lg" style={{ background: colorBgContainer }} width={200}>
-                            <Menu mode="inline" defaultSelectedKeys={[url]} style={{ height: '100%' }} items={sideBar} />
+                            <Menu mode="inline" selectedKeys={[url]} style={{ height: '100%' }} items={sideMenuItems} />
                         </Sider>
                     )}
                     <Content style={{ padding: '0 24px', minHeight: 280 }}>{children}</Content>

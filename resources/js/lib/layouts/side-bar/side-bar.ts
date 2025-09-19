@@ -1,68 +1,28 @@
-import { DashboardOutlined, UserOutlined } from '@ant-design/icons';
-import { router } from '@inertiajs/react';
-import { MenuProps } from 'antd';
-import React from 'react';
+import { useCurrentUserRoles } from '@/lib/hooks/useCurrentUserRoles';
+import { getCurrentUserRoles } from '../config/menu.config';
 
-export const sideBar: MenuProps['items'] | undefined = [
-    {
-        key: `/doctor/dashboard`,
-        icon: React.createElement(DashboardOutlined),
-        label: `Dasbor`,
-        onClick: () => {
-            router.get('/doctor/dashboard');
-        },
-    },
-    {
-        key: `/doctor/visit`,
-        icon: React.createElement(UserOutlined),
-        label: `Kunjungan`,
-        onClick: () => {
-            router.get('/doctor/visit');
-        },
-    },
+import { MenuUtils } from '../utils/menu.utils';
 
-    {
-        key: `/pharmacist/dashboard`,
-        icon: React.createElement(UserOutlined),
+/**
+ * Get sidebar menu items based on current user roles and active section
+ * @param activeTopMenu - The active top menu key to filter sidebar items
+ * @returns Ant Design menu items for sidebar
+ */
+export const getSideBarItems = (activeTopMenu?: string) => {
+    const userRoles = getCurrentUserRoles();
+    return MenuUtils.getSideMenuItems(userRoles, activeTopMenu);
+};
 
-        label: `Dasbor`,
-        onClick: () => {
-            router.get('/pharmacist/dashboard');
-        },
-    },
-    {
-        key: `/pharmacist/prescription`,
-        icon: React.createElement(UserOutlined),
-        label: `Resep Obat`,
-        onClick: () => {
-            router.get('/pharmacist/prescription');
-        },
-    },
+/**
+ * Hook to get sidebar items using current authenticated user roles
+ */
+export const useSideBarItems = (activeTopMenu?: string) => {
+    const userRoles = useCurrentUserRoles();
+    return MenuUtils.getSideMenuItems(userRoles, activeTopMenu);
+};
 
-    {
-        key: `/admin/dashboard`,
-        icon: React.createElement(UserOutlined),
-        label: `Dasbor`,
-        onClick: () => {
-            router.get('/admin/dashboard');
-        },
-    },
-
-    {
-        key: `/admin/patient`,
-        icon: React.createElement(UserOutlined),
-        label: `Dasbor`,
-        onClick: () => {
-            router.get('/admin/patient');
-        },
-    },
-
-    {
-        key: `/admin/visit`,
-        icon: React.createElement(UserOutlined),
-        label: `Kunjungan Dokter`,
-        onClick: () => {
-            router.get('/admin/visit');
-        },
-    },
-];
+/**
+ * Legacy export for backward compatibility
+ * @deprecated Use getSideBarItems or useSideBarItems instead
+ */
+export const sideBar = getSideBarItems();

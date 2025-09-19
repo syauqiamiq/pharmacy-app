@@ -7,9 +7,9 @@ use Inertia\Inertia;
 
 
 Route::get('/doctor/dashboard', function () {
-    return Inertia::render('doctor/dashboard/DashboardPage',);
+    return Inertia::render('doctor/dashboard/DoctorDashboardPage',);
 })->name('fe.doctor.dashboard');
 
 Route::get('/doctor/visit', function () {
-    return Inertia::render('doctor/visit/VisitPage',);
+    return Inertia::render('doctor/visit/DoctorVisitPage',);
 })->name('fe.doctor.visit');

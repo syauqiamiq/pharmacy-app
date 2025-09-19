@@ -1,29 +1,27 @@
-import { router } from '@inertiajs/react';
-import { MenuProps } from 'antd';
+import { useCurrentUserRoles } from '@/lib/hooks/useCurrentUserRoles';
+import { getCurrentUserRoles } from '../config/menu.config';
 
-export const topMenu: MenuProps['items'] | undefined = [
-    {
-        key: '/dashboard',
-        label: 'Dashboard',
-        onClick: () => {
-            router.get('/dashboard');
-        },
-    },
-    {
-        key: 'doctor',
-        label: 'Doctor',
-        title: 'Doctor',
-        onClick: () => {
-            router.get('/doctor/dashboard');
-        },
-    },
-    {
-        key: 'pharmacist',
-        label: 'Pharmacist',
-    },
+import { MenuUtils } from '../utils/menu.utils';
 
-    {
-        key: 'admin',
-        label: 'Admin',
-    },
-];
+/**
+ * Get top menu items based on current user roles
+ * @returns Ant Design menu items for top navigation
+ */
+export const getTopMenuItems = () => {
+    const userRoles = getCurrentUserRoles();
+    return MenuUtils.getTopMenuItems(userRoles);
+};
+
+/**
+ * Hook to get top menu items using current authenticated user roles
+ */
+export const useTopMenuItems = () => {
+    const userRoles = useCurrentUserRoles();
+    return MenuUtils.getTopMenuItems(userRoles);
+};
+
+/**
+ * Legacy export for backward compatibility
+ * @deprecated Use getTopMenuItems or useTopMenuItems instead
+ */
+export const topMenu = getTopMenuItems();
