@@ -2,7 +2,7 @@
 
 namespace App\Constants;
 
-class PrescriptionStatusConstant
+class VisitStatusConstant
 {
     public const SCHEDULED = "SCHEDULED";
     public const IN_ROOM = "IN_ROOM";
