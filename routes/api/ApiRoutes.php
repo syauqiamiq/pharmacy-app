@@ -14,3 +14,9 @@ Route::group([
     'prefix' => null,
     "middleware" => [MustAuthenticated::class]
 ], base_path('routes/api/AnamnesisRoutes.php'));
+
+Route::group([
+    'name' => "PrescriptionRoutes",
+    'prefix' => null,
+    "middleware" => [MustAuthenticated::class]
+], base_path('routes/api/PrescriptionRoutes.php'));
