@@ -5,7 +5,7 @@ const Dashboard = () => {
     const { props }: { props: any; url?: string } = usePage();
 
     return (
-        <DashboardLayout title="Dashboard" breadcrumbItems={[{ title: 'Dashboard' }]}>
+        <DashboardLayout title="Dasbor Umum" breadcrumbItems={[{ title: 'Dashboard' }]}>
             <div className="text-2xl font-bold">Welcome back, {props.auth.user.name}!</div>
         </DashboardLayout>
     );

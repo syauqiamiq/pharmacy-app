@@ -1,5 +1,5 @@
 import { TUserRole } from '@/lib/types/user-role.types';
-import { CalendarOutlined, DashboardOutlined, FileTextOutlined, MedicineBoxOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import { CalendarOutlined, DashboardOutlined, MedicineBoxOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 import React from 'react';
 import type { MenuConfig } from '../types/menu.types';
 
@@ -66,14 +66,6 @@ export const menuConfig: MenuConfig = {
             label: 'Kunjungan',
             icon: React.createElement(CalendarOutlined),
             route: '/doctor/visit',
-            roles: ['DOCTOR', 'ADMIN'],
-            parentKey: 'doctor',
-        },
-        {
-            key: '/doctor/anamnesis',
-            label: 'Anamnesis',
-            icon: React.createElement(FileTextOutlined),
-            route: '/doctor/anamnesis',
             roles: ['DOCTOR', 'ADMIN'],
             parentKey: 'doctor',
         },

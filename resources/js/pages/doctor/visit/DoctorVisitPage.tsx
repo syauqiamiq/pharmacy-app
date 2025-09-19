@@ -16,7 +16,7 @@ const DoctorVisitPage = () => {
         switch (status) {
             case 'SCHEDULED':
                 return 'blue';
-            case 'IN_ROOM ':
+            case 'IN_ROOM':
                 return 'orange';
             case 'DONE':
                 return 'green';
@@ -31,7 +31,7 @@ const DoctorVisitPage = () => {
         switch (status) {
             case 'SCHEDULED':
                 return 'Dijadwalkan';
-            case 'IN_ROOM ':
+            case 'IN_ROOM':
                 return 'Didalam Ruangan';
             case 'DONE':
                 return 'Selesai';
