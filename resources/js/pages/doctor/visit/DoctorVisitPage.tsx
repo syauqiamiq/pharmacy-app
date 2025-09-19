@@ -4,17 +4,15 @@ import { useGetAllMyVisit } from '@/lib/services/visit.service';
 import { Badge, DatePicker, Input, Pagination, Space, Spin } from 'antd';
 import VisitCard from './components/VisitCard';
 
-
 const DoctorVisitPage = () => {
     const { paginateRequest, handlePageChange, handleSearchChange, handleOptionalChange } = useTableAsync<{
         fromDate?: string;
         toDate?: string;
     }>();
 
-      const { data, isLoading } = useGetAllMyVisit(paginateRequest);
+    const { data, isLoading } = useGetAllMyVisit(paginateRequest);
 
-
-      const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
             case 'SCHEDULED':
                 return 'blue';
@@ -27,9 +25,9 @@ const DoctorVisitPage = () => {
             default:
                 return 'gray';
         }
-    }
+    };
 
-          const getStatusText = (status: string) => {
+    const getStatusText = (status: string) => {
         switch (status) {
             case 'SCHEDULED':
                 return 'Dijadwalkan';
@@ -42,8 +40,7 @@ const DoctorVisitPage = () => {
             default:
                 return '-';
         }
-    }
-
+    };
 
     return (
         <DashboardLayout title="Kunjungan Dokter" breadcrumbItems={[{ title: 'Dashboard' }, { title: 'Doctor' }, { title: 'Visit' }]}>
@@ -70,23 +67,26 @@ const DoctorVisitPage = () => {
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {isLoading ? (
-                          <div className='flex w-full justify-center'>
-                            <Spin tip="Loading" size="default"/>
-                          </div>
-                    ) : data && data.data.length > 0 ? (data.data?.map((item, i) => (
-                        <div className="w-full" key={i}>
-                            <Badge.Ribbon color={getStatusColor(item.status)} text={getStatusText(item.status)}>
-                                <VisitCard
-                                    patientName={item.patient?.name || "-"}
-                                    medicalRecordNumber={item.patient?.medic_record_number || "-"}
-                                    patientId={item.patient_id}
-                                    doctorName={item.doctor?.user?.name || "-"}
-                                    doctorSpecialization={item.doctor?.specialization || "-"    }
-                                    visitDate={item.visit_date}
-                                />
-                            </Badge.Ribbon>
+                        <div className="flex w-full justify-center">
+                            <Spin tip="Loading" size="default" />
                         </div>
-                    ))) : (
+                    ) : data && data.data.length > 0 ? (
+                        data.data?.map((item, i) => (
+                            <div className="w-full" key={i}>
+                                <Badge.Ribbon color={getStatusColor(item.status)} text={getStatusText(item.status)}>
+                                    <VisitCard
+                                        patientName={item.patient?.name || '-'}
+                                        medicalRecordNumber={item.patient?.medic_record_number || '-'}
+                                        patientId={item.patient_id}
+                                        doctorName={item.doctor?.user?.name || '-'}
+                                        doctorSpecialization={item.doctor?.specialization || '-'}
+                                        visitDate={item.visit_date}
+                                        visitId={item.id}
+                                    />
+                                </Badge.Ribbon>
+                            </div>
+                        ))
+                    ) : (
                         <div>No visits found.</div>
                     )}
                 </div>

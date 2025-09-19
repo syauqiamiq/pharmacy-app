@@ -1,9 +1,16 @@
 <?php
 
+use App\Http\Middleware\MustAuthenticated;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'name' => "VisitRioutes",
+    'name' => "VisitRoutes",
     'prefix' => null,
-    "middleware" => []
+    "middleware" =>  [MustAuthenticated::class]
 ], base_path('routes/api/VisitRoutes.php'));
+
+Route::group([
+    'name' => "AnamnesisRoutes",
+    'prefix' => null,
+    "middleware" => [MustAuthenticated::class]
+], base_path('routes/api/AnamnesisRoutes.php'));

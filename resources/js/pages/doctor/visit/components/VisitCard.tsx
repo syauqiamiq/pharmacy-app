@@ -1,4 +1,5 @@
 import { CalendarOutlined, UserOutlined } from '@ant-design/icons';
+import { router } from '@inertiajs/react';
 import { Card, Typography } from 'antd';
 import { format } from 'date-fns';
 const { Text } = Typography;
@@ -10,11 +11,16 @@ interface IVisitCardProps {
     doctorName: string;
     doctorSpecialization?: string;
     visitDate?: string;
+    visitId?: string;
 }
 
-const VisitCard = ({ patientName, medicalRecordNumber, doctorName, doctorSpecialization }: IVisitCardProps) => {
+const VisitCard = ({ patientName, medicalRecordNumber, doctorName, doctorSpecialization, visitId }: IVisitCardProps) => {
     return (
-        <Card hoverable onClick={() => console.log('Card clicked')} className="border-gray-200 transition-all duration-200 hover:shadow-lg">
+        <Card
+            hoverable
+            onClick={() => router.get(`/doctor/visit/${visitId}/anamnesis`)}
+            className="border-gray-200 transition-all duration-200 hover:shadow-lg"
+        >
             <div className="flex flex-col">
                 {/* Header with Avatar and Basic Info */}
                 <div className="mb-4 flex items-start gap-4">

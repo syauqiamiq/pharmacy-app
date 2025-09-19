@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import type { BreadcrumbProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Divider, Layout, Menu, theme } from 'antd';
 import React from 'react';
 import { useMenuItemsWithAuth } from './utils/menu.utils';
 
@@ -40,6 +40,7 @@ const DashboardLayout = ({ children, breadcrumbItems, title }: IDashboardLayoutP
                     )}
                     <Content style={{ padding: '0 24px', minHeight: 280 }}>
                         <div className="text-2xl font-bold">{title}</div>
+                        <Divider orientation="left" className="text-xl font-bold" />
                         {children}
                     </Content>
                 </Layout>

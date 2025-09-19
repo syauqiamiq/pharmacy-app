@@ -14,3 +14,9 @@ Route::get('/doctor/dashboard', function () {
 Route::get('/doctor/visit', function () {
     return Inertia::render('doctor/visit/DoctorVisitPage');
 })->name('fe.doctor.visit');
+
+Route::get('/doctor/visit/{id}/anamnesis', function () {
+    return Inertia::render('doctor/visit/DoctorVisitAnamnesisPage',[
+        'visitId' => request()->id,
+    ]);
+})->name('fe.doctor.visit.anamnesis');
