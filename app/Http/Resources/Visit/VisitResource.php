@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources\Visit;
 
+use App\Http\Resources\Anamnesis\AnamnesisResource;
 use App\Http\Resources\Doctor\DoctorResource;
 use App\Http\Resources\Patient\PatientResource;
+use App\Models\Anamnesis;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +26,7 @@ class VisitResource extends JsonResource
             "status" => $this->status,
             "doctor" => new DoctorResource($this->doctor),
             "patient" => new PatientResource($this->patient),
+            "anamnesis" => new AnamnesisResource($this->anamnesis),
         ];
     }
 }

@@ -28,8 +28,8 @@ class Visit extends Model
         return $this->belongsTo(Doctor::class);
     }
 
-    public function anamneses()
+    public function anamnesis()
     {
-        return $this->hasMany(Anamnesis::class);
+        return $this->hasOne(Anamnesis::class);
     }
 }

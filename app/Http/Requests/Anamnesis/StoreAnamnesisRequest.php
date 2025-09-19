@@ -31,10 +31,10 @@ class StoreAnamnesisRequest extends FormRequest
             'madication_history' => 'nullable|string|max:1000',
             'physical_exam' => 'nullable|string|max:1000',
             'note' => 'nullable|string|max:1000',
-            'anamnesisDetails' => 'nullable|array',
-            'anamnesisDetails.*.key' => 'required_with:anamnesisDetails|string|max:255',
-            'anamnesisDetails.*.value' => 'required_with:anamnesisDetails|string|max:255',
-            'anamnesisDetails.*.unit' => 'nullable|string|max:50',
+            'anamnesis_details' => 'nullable|array',
+            'anamnesis_details.*.key' => 'required_with:anamnesis_details|string|max:255',
+            'anamnesis_details.*.value' => 'required_with:anamnesis_details|string|max:255',
+            'anamnesis_details.*.unit' => 'nullable|string|max:50',
         ];
     }
 

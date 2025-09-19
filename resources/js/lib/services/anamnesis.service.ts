@@ -2,45 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants/api';
 import { IApiResponse } from '../interfaces/api.interface';
-
-// Interfaces for Anamnesis
-interface IAnamnesisDetail {
-    key: string;
-    value: string;
-    unit: string;
-}
-
-interface ICreateAnamnesisPayload {
-    visit_id: string;
-    patient_complaint?: string;
-    present_illness?: string;
-    past_illness?: string;
-    allergy_history?: string;
-    family_history?: string;
-    madication_history?: string;
-    physical_exam?: string;
-    note?: string;
-    anamnesisDetails?: IAnamnesisDetail[];
-}
-
-interface IAnamnesisResponse {
-    id: string;
-    visit_id: string;
-    doctor_id: string;
-    patient_complaint: string;
-    present_illness: string;
-    past_illness: string;
-    allergy_history: string;
-    family_history: string;
-    medication_history: string;
-    physical_exam: string;
-    note: string;
-    created_at: string;
-    updated_at: string;
-    doctor?: any;
-    visit?: any;
-    anamnesis_details?: IAnamnesisDetail[];
-}
+import { IAnamnesisResponse, ICreateAnamnesisPayload } from '../interfaces/services/anamnesis.interface';
 
 // Query Keys
 const QKEY_ANAMNESIS = 'QKEY_ANAMNESIS';
@@ -83,11 +45,11 @@ const useCreateAnamnesis = () => {
             }
 
             // Add anamnesis details as JSON
-            if (payload.anamnesisDetails && payload.anamnesisDetails.length > 0) {
-                payload.anamnesisDetails.forEach((detail, index) => {
-                    formData.append(`anamnesisDetails[${index}][key]`, detail.key);
-                    formData.append(`anamnesisDetails[${index}][value]`, detail.value);
-                    formData.append(`anamnesisDetails[${index}][unit]`, detail.unit || '');
+            if (payload.anamnesis_details && payload.anamnesis_details.length > 0) {
+                payload.anamnesis_details.forEach((detail, index) => {
+                    formData.append(`anamnesis_details[${index}][key]`, detail.key);
+                    formData.append(`anamnesis_details[${index}][value]`, detail.value);
+                    formData.append(`anamnesis_details[${index}][unit]`, detail.unit || '');
                 });
             }
 
@@ -145,11 +107,11 @@ const useUpdateAnamnesis = () => {
             }
 
             // Add anamnesis details
-            if (payload.anamnesisDetails) {
-                payload.anamnesisDetails.forEach((detail, index) => {
-                    formData.append(`anamnesisDetails[${index}][key]`, detail.key);
-                    formData.append(`anamnesisDetails[${index}][value]`, detail.value);
-                    formData.append(`anamnesisDetails[${index}][unit]`, detail.unit || '');
+            if (payload.anamnesis_details) {
+                payload.anamnesis_details.forEach((detail, index) => {
+                    formData.append(`anamnesis_details[${index}][key]`, detail.key);
+                    formData.append(`anamnesis_details[${index}][value]`, detail.value);
+                    formData.append(`anamnesis_details[${index}][unit]`, detail.unit || '');
                 });
             }
 
@@ -174,7 +136,7 @@ const useDeleteAnamnesis = () => {
 
     return useMutation({
         mutationFn: async (id: string): Promise<IApiResponse<null>> => {
-            return axios.delete(`${API_BASE_URL}/api/anamnesis/${id}`).then((res) => res.data);
+            return axios.delete(`${API_BASE_URL}/api/v1/anamnesis/${id}`).then((res) => res.data);
         },
         onSuccess: () => {
             // Invalidate related queries
@@ -183,4 +145,4 @@ const useDeleteAnamnesis = () => {
     });
 };
 
-export { useCreateAnamnesis, useDeleteAnamnesis, useUpdateAnamnesis, type IAnamnesisDetail, type IAnamnesisResponse, type ICreateAnamnesisPayload };
+export { useCreateAnamnesis, useDeleteAnamnesis, useUpdateAnamnesis };

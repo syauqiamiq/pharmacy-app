@@ -146,7 +146,7 @@ class VisitService
     public function findVisitById($visitId)
     {
         try {
-            $visit = Visit::with(['doctor.user', 'patient'])
+            $visit = Visit::with(['doctor.user', 'patient', 'anamnesis', 'anamnesis.anamnesisDetails'])
                 ->where('id', $visitId)
                 ->first();
 

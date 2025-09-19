@@ -57,8 +57,8 @@ class AnamnesisService
             $anamnesis = Anamnesis::create($anamnesisData);
 
             // Create anamnesis details if provided
-            if (isset($data['anamnesisDetails']) && is_array($data['anamnesisDetails'])) {
-                foreach ($data['anamnesisDetails'] as $detail) {
+            if (isset($data['anamnesis_details']) && is_array($data['anamnesis_details'])) {
+                foreach ($data['anamnesis_details'] as $detail) {
                     $anamnesis->anamnesisDetails()->create([
                         'key' => $detail['key'] ?? '',
                         'value' => $detail['value'] ?? '',

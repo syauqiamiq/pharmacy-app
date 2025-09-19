@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { FormInput, FormInputArea } from '@/lib/components/atoms/input';
+import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
+import { VITAL_SIGN_TYPES, VITAL_SIGN_UNITS } from '@/lib/constants/vital-sign';
+import { ICreateAnamnesisPayload } from '@/lib/interfaces/services/anamnesis.interface';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
-import { ICreateAnamnesisPayload, useCreateAnamnesis } from '@/lib/services/anamnesis.service';
+import { useCreateAnamnesis } from '@/lib/services/anamnesis.service';
 import { DeleteOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { router } from '@inertiajs/react';
 import { Button, Card, Col, Grid, Row, Space, Typography, message } from 'antd';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { formSchema } from './constants/formSchema';
@@ -86,13 +89,14 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                 madication_history: data.madication_history,
                 physical_exam: data.physical_exam,
                 note: data.note,
-                anamnesisDetails: data.anamnesisDetails || [],
+                anamnesis_details: data.anamnesisDetails || [],
             };
-            console.log('Form Data:', payload);
+
             await createAnamnesisWithMutation.mutateAsync(payload);
 
             message.success('Anamnesis berhasil disimpan!');
             reset(); // Reset form after successful submission
+            router.get(`/doctor/visit/${visitId}/detail`);
         } catch (error: any) {
             console.error('Error creating anamnesis:', error);
             message.error(error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan anamnesis');
@@ -191,13 +195,23 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                             {anamnesisDetailsFields.map((field, index) => (
                                 <div className="mb-5 grid grid-cols-12 gap-3">
                                     <div className="col-span-12 lg:col-span-3">
-                                        <FormInput label="Nama" name={`anamnesisDetails.${index}.key`} placeholder="Nama" />
+                                        <FormSelectInput
+                                            label="Nama"
+                                            name={`anamnesisDetails.${index}.key`}
+                                            placeholder="Nama"
+                                            options={VITAL_SIGN_TYPES.map(({ value, label }) => ({ value, label }))}
+                                        />
                                     </div>
                                     <div className="col-span-12 lg:col-span-3">
                                         <FormInput label="Nilai" name={`anamnesisDetails.${index}.value`} placeholder="Nilai" />
                                     </div>
                                     <div className="col-span-12 lg:col-span-3">
-                                        <FormInput label="Unit" name={`anamnesisDetails.${index}.unit`} placeholder="Unit" />
+                                        <FormSelectInput
+                                            label="Unit"
+                                            name={`anamnesisDetails.${index}.unit`}
+                                            placeholder="Unit"
+                                            options={Object.entries(VITAL_SIGN_UNITS).map(([value, label]) => ({ value: label, label: label }))}
+                                        />
                                     </div>
                                     <div className="col-span-12 flex items-end lg:col-span-3">
                                         <Button className={lg ? 'w-23' : 'w-full'} danger onClick={() => removeAnamnesisDetailsFields(index)}>
@@ -219,14 +233,6 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                             >
                                 Tambah Data
                             </Button>
-                        </Card>
-                        {/* Detail Anamnesis Section */}
-                        <Card className="shadow-md">
-                            <div className="mb-4 flex items-center justify-between">
-                                <Title level={3} className="mb-0">
-                                    Resep Obat
-                                </Title>
-                            </div>
                         </Card>
 
                         {/* Action Buttons */}
