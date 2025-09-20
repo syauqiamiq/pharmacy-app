@@ -15,10 +15,7 @@ trait HttpHelper
         $this->baseUri = $baseUri;
     }
 
-    /**
-     * Send a request to any service
-     * @return string
-     */
+
     public function performRequest($method, $requestUrl, $parameters = [], $headers = [], $body = []): Response
     {
 
@@ -60,10 +57,10 @@ trait HttpHelper
         }
     }
 
-       private function authenticateDeltaSurya()
+    private function authenticateDeltaSurya()
     {
         try {
-            $response = $this->performRequest('POST', '/api/v1/auth', [],[],[
+            $response = $this->performRequest('POST', '/api/v1/auth', [], [], [
                 'email' => 'syauqiamiq.work@gmail.com',
                 'password' => '081336502325'
             ]);

@@ -7,7 +7,7 @@ import { IApiResponse } from '../interfaces/api.interface';
 import { ICreatePrescriptionPayload, IPrescriptionResponse, IUpdatePrescriptionPayload } from '../interfaces/services/prescription.interface';
 
 // Query Keys
-const QKEY_PRESCRIPTION = 'QKEY_PRESCRIPTION';
+export const QKEY_PRESCRIPTION = 'QKEY_PRESCRIPTION';
 
 const useGetAllPrescriptionByAnamnesisId = (anamnesisId: string, paginateRequest: IPaginateRequest) =>
     useQuery({

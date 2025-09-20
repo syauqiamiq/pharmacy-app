@@ -5,6 +5,7 @@ namespace App\Http\Resources\Prescription;
 use App\Http\Resources\Doctor\DoctorResource;
 use App\Http\Resources\Patient\PatientResource;
 use App\Http\Resources\Anamnesis\AnamnesisResource;
+use App\Http\Resources\PrescriptionInvoice\PrescriptionInvoiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,13 +30,14 @@ class PrescriptionResource extends JsonResource
             'pharmacist_name' => $this->pharmacist_name,
             'pharmacist_note' => $this->pharmacist_note,
             'status' => $this->status,
-            'invoice_status' => $this->prescriptionInvoices()->latest()->first() ? $this->prescriptionInvoices()->latest()->first()->status : null,
+            'invoice_status' => $this->prescriptionInvoice ? $this->prescriptionInvoice->status : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'doctor' => new DoctorResource($this->whenLoaded('doctor')),
             'patient' => new PatientResource($this->whenLoaded('patient')),
             'anamnesis' => new AnamnesisResource($this->whenLoaded('anamnesis')),
             'prescription_details' => PrescriptionDetailResource::collection($this->whenLoaded('prescriptionDetails')),
+            'prescription_invoice' => new PrescriptionInvoiceResource($this->whenLoaded('prescriptionInvoice')),
         ];
     }
 }

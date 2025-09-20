@@ -1,3 +1,5 @@
+import { IPrescriptionInvoiceResponse } from './prescription-invoice';
+
 export interface ICreatePrescriptionPayload {
     anamnesis_id: string;
     doctor_name: string;
@@ -39,11 +41,14 @@ export interface IPrescriptionResponse {
     doctor_name: string;
     doctor_note: string;
     pharmacist_id: string | null;
+    patient_id: string | null;
+    patient_name: string | null;
     pharmacist_name: string | null;
     pharmacist_note: string | null;
     invoice_status?: string | null;
     status: string;
     prescription_details?: IPrescriptionDetail[];
+    prescription_invoice?: IPrescriptionInvoiceResponse;
 }
 export interface IPrescriptionDetail {
     id: string;
@@ -54,5 +59,5 @@ export interface IPrescriptionDetail {
     frequency: string | null;
     duration: string | null;
     note: string | null;
-    quantity?: number; 
+    quantity?: number;
 }

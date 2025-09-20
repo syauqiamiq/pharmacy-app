@@ -3,6 +3,7 @@ import { useDialog } from '@/lib/hooks/useDialog';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { Button, Card, Space, Tag } from 'antd';
+import InvoicePrescriptionModal from './components/InvoicePrescriptionModal';
 import ReviewPrescriptionModal from './components/ReviewPrescriptionModal';
 
 interface IPharmacistPrescriptionDetailPageProps {
@@ -14,11 +15,17 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
     const updatePrescription = useUpdatePrescription();
 
     const {
-
         handleClose: reviewPrescriptionHandleClose,
         open: reviewPrescriptionOpen,
         setDialogState: setReviewPrescriptionDialogState,
         data: reviewPrescriptionDialogData,
+    } = useDialog();
+
+    const {
+        handleClose: invoicePrescriptionHandleClose,
+        open: invoicePrescriptionOpen,
+        setDialogState: setInvoicePrescriptionDialogState,
+        data: invoicePrescriptionDialogData,
     } = useDialog();
 
     return (
@@ -28,7 +35,16 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                     <Space direction="vertical" size="middle" className="w-full">
                         <div className="flex w-full gap-3 lg:justify-end">
                             {['VALIDATED', 'DISPENSING', 'DISPENSED', 'ON_HOLD', 'DONE'].includes(prescriptionData?.data?.status) && (
-                                <Button type="dashed" className="w-full lg:w-auto" onClick={async () => console.log('print receipt')}>
+                                <Button
+                                    type="dashed"
+                                    className="w-full lg:w-auto"
+                                    onClick={async () =>
+                                        setInvoicePrescriptionDialogState({
+                                            open: true,
+                                            data: { id: prescriptionData.data.prescription_invoice?.id },
+                                        })
+                                    }
+                                >
                                     Invoice
                                 </Button>
                             )}
@@ -93,46 +109,56 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                 </div>
                             )}
                         </div>
-                       <div className='grid grid-cols-2 gap-4'>
-                         <div>
-                            <h3 className="text-lg font-semibold">Nama Dokter</h3>
-                            <div className="text-md mt-1">{prescriptionData?.data?.doctor_name || '-'}</div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <h3 className="text-lg font-semibold">Nama Dokter</h3>
+                                <div className="text-md mt-1">{prescriptionData?.data?.doctor_name || '-'}</div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Catatan Dokter</h3>
+                                <div className="text-md mt-1">{prescriptionData?.data?.doctor_note || '-'}</div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Nama Apoteker</h3>
+                                <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_name || '-'}</div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Catatan Apoteker</h3>
+                                <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_note || '-'}</div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Status</h3>
+                                <Tag color={getPrescriptionStatusColor(prescriptionData?.data?.status)}>
+                                    {getPrescriptionStatusText(prescriptionData?.data.status)}
+                                </Tag>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Status Invoice</h3>
+                                <Tag
+                                    color={
+                                        prescriptionData?.data?.invoice_status
+                                            ? prescriptionData?.data?.invoice_status === 'PAID'
+                                                ? 'green'
+                                                : prescriptionData?.data?.invoice_status === 'PENDING'
+                                                  ? 'cyan'
+                                                  : prescriptionData?.data?.invoice_status === 'CANCELED'
+                                                    ? 'red'
+                                                    : '-'
+                                            : 'red'
+                                    }
+                                >
+                                    {prescriptionData?.data?.invoice_status
+                                        ? prescriptionData?.data?.invoice_status === 'PAID'
+                                            ? 'Lunas'
+                                            : prescriptionData?.data?.invoice_status === 'PENDING'
+                                              ? 'Belum Lunas'
+                                              : prescriptionData?.data?.invoice_status === 'CANCELED'
+                                                ? 'Dibatalkan'
+                                                : '-'
+                                        : 'Belum Ada Invoice'}
+                                </Tag>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Catatan Dokter</h3>
-                            <div className="text-md mt-1">{prescriptionData?.data?.doctor_note || '-'}</div>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Nama Apoteker</h3>
-                            <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_name || '-'}</div>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Catatan Apoteker</h3>
-                            <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_note || '-'}</div>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Status</h3>
-                            <Tag color={getPrescriptionStatusColor(prescriptionData?.data?.status)}>
-                                {getPrescriptionStatusText(prescriptionData?.data.status)}
-                            </Tag>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Status Invoice</h3>
-                            <Tag color={prescriptionData?.data?.invoice_status
-                                    ? prescriptionData?.data?.invoice_status === 'PAID'
-                                        ? 'green'
-                                        : prescriptionData?.data?.invoice_status === 'PENDING'
-                                        ? 'cyan' : prescriptionData?.data?.invoice_status === 'CANCELLED' ? 'red' : '-'
-                                    : 'red'}>
-                                {prescriptionData?.data?.invoice_status
-                                    ? prescriptionData?.data?.invoice_status === 'PAID'
-                                        ? 'Lunas'
-                                        : prescriptionData?.data?.invoice_status === 'PENDING'
-                                        ? 'Belum Lunas' : prescriptionData?.data?.invoice_status === 'CANCELLED' ? 'Dibatalkan' : '-'
-                                    : 'Belum Ada Invoice'}
-                            </Tag>
-                        </div>
-                       </div>
                         <h3 className="text-lg font-semibold">Detail Resep</h3>
                         {prescriptionData?.data?.prescription_details && prescriptionData?.data?.prescription_details.length > 0 ? (
                             prescriptionData?.data?.prescription_details?.map((v, i) => {
@@ -172,6 +198,15 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                         open={reviewPrescriptionOpen}
                         onCancel={reviewPrescriptionHandleClose}
                         data={reviewPrescriptionDialogData}
+                    />
+                </div>
+            )}
+            {invoicePrescriptionOpen && (
+                <div>
+                    <InvoicePrescriptionModal
+                        open={invoicePrescriptionOpen}
+                        onCancel={invoicePrescriptionHandleClose}
+                        data={invoicePrescriptionDialogData}
                     />
                 </div>
             )}

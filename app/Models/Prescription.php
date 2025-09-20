@@ -54,8 +54,8 @@ class Prescription extends Model
         return $this->hasMany(PrescriptionLog::class);
     }
 
-    public function prescriptionInvoices()
+    public function prescriptionInvoice()
     {
-        return $this->hasMany(PrescriptionInvoice::class);
+        return $this->hasOne(PrescriptionInvoice::class);
     }
 }

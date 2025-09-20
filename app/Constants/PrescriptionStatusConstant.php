@@ -12,7 +12,7 @@ class PrescriptionStatusConstant
     public const DISPENSED = "DISPENSED";
     public const DONE = "DONE";
     public const REJECTED = "REJECTED";
-    public const CANCELED = "CANCELED";
+    public const CANCELED = "CANCELLED";
     public const RETURN = "RETURN";
     public const EXPIRED = "EXPIRED";
 }

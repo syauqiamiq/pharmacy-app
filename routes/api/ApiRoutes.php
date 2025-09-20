@@ -26,3 +26,9 @@ Route::group([
     'prefix' => null,
     "middleware" => [MustAuthenticated::class]
 ], base_path('routes/api/MedicineRoutes.php'));
+
+Route::group([
+    'name' => "PrescriptionInvoiceRoutes",
+    'prefix' => null,
+    "middleware" => [MustAuthenticated::class]
+], base_path('routes/api/PrescriptionInvoiceRoutes.php'));

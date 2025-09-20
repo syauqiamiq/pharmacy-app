@@ -58,7 +58,6 @@ const CreatePrescriptionModal = ({ anamnesisId, open, onCancel, doctorName }: IC
     const createPrescription = useCreatePrescription();
 
     const onSubmit = async (data: any) => {
-        console.log(data);
         await createPrescription.mutateAsync({
             anamnesis_id: anamnesisId,
             doctor_name: data.doctor_name,

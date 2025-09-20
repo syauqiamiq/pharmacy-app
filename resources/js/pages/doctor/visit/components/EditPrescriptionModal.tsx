@@ -65,7 +65,6 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
     const updatePrescription = useUpdatePrescription();
 
     const onSubmit = async (formData: any) => {
-        console.log(formData);
         await updatePrescription.mutateAsync({
             prescription_id: data.id,
             doctor_note: formData.doctor_note,
@@ -104,7 +103,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                                                     setValue(`prescriptionDetails.${index}.medicine_id`, selectedMedicine.id || '');
                                                 }
                                             }}
-                                            defaultValue={{
+                                            value={{
                                                 label: field.medicine_name,
                                                 value: field.medicine_id,
                                             }}
