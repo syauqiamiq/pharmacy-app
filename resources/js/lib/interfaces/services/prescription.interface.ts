@@ -1,0 +1,53 @@
+export interface ICreatePrescriptionPayload {
+    anamnesis_id: string;
+    doctor_name: string;
+    doctor_note: string;
+    prescription_details?:
+        | {
+              medicine_id?: string;
+              medicine_name: string;
+              dosage?: string;
+              frequency?: string;
+              duration?: string;
+              note?: string;
+          }[]
+        | null;
+}
+
+export interface IUpdatePrescriptionPayload {
+    prescription_id: string;
+    doctor_note?: string;
+    status?: string;
+    prescription_details?:
+        | {
+              medicine_id?: string;
+              medicine_name: string;
+              dosage?: string;
+              frequency?: string;
+              duration?: string;
+              note?: string;
+          }[]
+        | null;
+}
+export interface IPrescriptionResponse {
+    id: string;
+    anamnesis_id: string;
+    doctor_id: string;
+    doctor_name: string;
+    doctor_note: string;
+    pharmacist_id: string | null;
+    pharmacist_name: string | null;
+    pharmacist_note: string | null;
+    status: string;
+    prescription_details?: IPrescriptionDetail[];
+}
+export interface IPrescriptionDetail {
+    id: string;
+    prescription_id: string;
+    medicine_id: string | null;
+    medicine_name: string;
+    dosage: string | null;
+    frequency: string | null;
+    duration: string | null;
+    note: string | null;
+}

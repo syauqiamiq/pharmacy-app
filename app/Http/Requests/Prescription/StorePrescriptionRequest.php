@@ -23,8 +23,8 @@ class StorePrescriptionRequest extends FormRequest
     {
         return [
             'anamnesis_id' => 'required|string|exists:anamneses,id',
-            'doctor_note' => 'nullable|string|max:1000',
-            'status' => 'nullable|string|in:pending,approved,dispensed,completed,cancelled',
+            'doctor_name' => 'required|string|max:1000',
+            'doctor_note' => 'required|string|max:1000',
             'prescription_details' => 'nullable|array',
             'prescription_details.*.medicine_id' => 'nullable|string',
             'prescription_details.*.medicine_name' => 'required_with:prescription_details|string|max:255',

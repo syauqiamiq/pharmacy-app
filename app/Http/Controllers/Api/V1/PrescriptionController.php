@@ -95,6 +95,43 @@ class PrescriptionController extends Controller
         }
     }
 
+
+        /**
+     * Display my prescriptions.
+     */
+    public function findPrescriptionsByAnamnesisId(GetPrescriptionsRequest $request, $anamnesisId)
+    {
+        try {
+            $limit = $request->limit ? $request->limit : 25;
+            $search = $request->search ? $request->search : '';
+            $orderBy = $request->orderBy ? $request->orderBy : 'id';
+            $sort = $request->sort ? $request->sort : 'ASC';
+            $fromDate = $request->fromDate ? $request->fromDate : null;
+            $toDate = $request->toDate ? $request->toDate : null;
+
+            $result = $this->prescriptionService->findPrescriptionsByAnamnesisId(
+                $anamnesisId,
+                $limit,
+                $search,
+                $orderBy,
+                $sort,
+                $fromDate,
+                $toDate
+            );
+
+            $formattedDatas = PrescriptionResource::collection($result);
+
+            return $this->successResponse($formattedDatas, "success", Response::HTTP_OK, [
+                "current_page" => $result->currentPage(),
+                "last_page" =>  $result->lastPage(),
+                "per_page" =>  $result->perPage(),
+                "total" =>  $result->total(),
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */

@@ -23,7 +23,7 @@ class UpdatePrescriptionRequest extends FormRequest
     {
         return [
             'doctor_note' => 'sometimes|string|max:1000',
-            'status' => 'sometimes|string|in:pending,approved,dispensed,completed,cancelled',
+            'status' => 'sometimes|string|in:DRAFT,PENDING_VALIDATION,VALIDATED,ON_HOLD,DISPENSING,PARTIALLY_DISPENSED,DISPENSED,REJECTED,CANCELED,RETURN,EXPIRED',
             'prescription_details' => 'sometimes|array',
             'prescription_details.*.medicine_id' => 'nullable|string',
             'prescription_details.*.medicine_name' => 'required_with:prescription_details|string|max:255',

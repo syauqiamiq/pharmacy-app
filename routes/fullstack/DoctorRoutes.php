@@ -26,8 +26,14 @@ Route::get('/doctor/visit/{id}/anamnesis', function () {
 })->name('fe.doctor.visit.anamnesis');
 
 Route::get('/doctor/visit/{id}/detail', function () {
+
+    if (!Anamnesis::where('visit_id', request()->id)->exists()) {
+       
+        return redirect()->route('fe.doctor.visit.anamnesis', ['id' => request()->id]);
+    }
     return Inertia::render('doctor/visit/DoctorVisitDetailPage',[
         'visitId' => request()->id,
+        'anamnesisId' => Anamnesis::where('visit_id', request()->id)->first()->id,
     ]);
 })->name('fe.doctor.visit.detail');
 

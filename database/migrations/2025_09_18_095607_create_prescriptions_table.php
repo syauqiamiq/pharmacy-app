@@ -19,9 +19,9 @@ return new class extends Migration
             $table->foreignUuid('patient_id')->nullable()->index()->references("id")->on("patients")->onDelete("SET NULL");
             $table->string('patient_name')->index();
             $table->string('doctor_name')->index();
-            $table->string('doctor_note')->index();
-            $table->string('pharmacist_name')->index();
-            $table->string('pharmacist_note')->index();
+            $table->string('doctor_note')->nullable()->index();
+            $table->string('pharmacist_name')->nullable()->index();
+            $table->string('pharmacist_note')->nullable()->index();
             $table->string('status')->index()->comment("DRAFT, PENDING_VALIDATION, VALIDATED, ON_HOLD,DISPENSING, , PARTIALLY_DISPENSED, DISPENSED, REJECTED, CANCELED, RETURNED, EXPIRED");
             $table->timestamps();
             $table->softDeletes();

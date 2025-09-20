@@ -1,10 +1,10 @@
-import { useCallback } from "react";
+import { useCallback } from 'react';
 
-import { Select } from "antd";
-import { useController, useFormContext } from "react-hook-form";
+import { Select } from 'antd';
+import { useController, useFormContext } from 'react-hook-form';
 
-import clsx from "clsx";
-import { IFormSelectInputProps } from "./interfaces";
+import clsx from 'clsx';
+import { IFormSelectInputProps } from './interfaces';
 
 /**
  * A reusable form-select component integrated with `react-hook-form` and Ant Design's `Select`.
@@ -23,44 +23,36 @@ import { IFormSelectInputProps } from "./interfaces";
  * @returns {JSX.Element} A controlled select input field with validation and error handling.
  *
  * */
-const FormSelectInput = ({
-	name,
-	label,
-	extraOnChange,
-	options = [],
-	onSearch,
-	className,
-	...rest
-}: IFormSelectInputProps) => {
-	const { control } = useFormContext();
-	const { field, fieldState } = useController({ name, control });
-	const { error } = fieldState;
+const FormSelectInput = ({ name, label, extraOnChange, options = [], onSearch, className, ...rest }: IFormSelectInputProps) => {
+    const { control } = useFormContext();
+    const { field, fieldState } = useController({ name, control });
+    const { error } = fieldState;
 
-	const handleCustomChange = useCallback(
-		(input: any) => {
-			field.onChange(input);
-			if (extraOnChange) {
-				extraOnChange(input);
-			}
-		},
-		[field, extraOnChange]
-	);
-	return (
-		<div>
-			{label && <div className="text-xs mb-2">{label}</div>}
-			<Select
-				className={clsx("flex w-full", className)}
-				onChange={handleCustomChange}
-				onSearch={onSearch}
-				options={options}
-				status={error && "error"}
-				ref={field.ref}
-				{...rest}
-			/>
+    const handleCustomChange = useCallback(
+        (input: any) => {
+            field.onChange(input);
+            if (extraOnChange) {
+                extraOnChange(input);
+            }
+        },
+        [field, extraOnChange],
+    );
+    return (
+        <div>
+            {label && <div className="mb-2 text-xs">{label}</div>}
+            <Select
+                className={clsx('flex w-full', className)}
+                onChange={handleCustomChange}
+                onSearch={onSearch}
+                options={options}
+                status={error && 'error'}
+                ref={field.ref}
+                {...rest}
+            />
 
-			{error && <div className="text-xs text-red-500">{error.message}</div>}
-		</div>
-	);
+            {error && <div className="text-xs text-red-500">{error.message}</div>}
+        </div>
+    );
 };
 
 export default FormSelectInput;
