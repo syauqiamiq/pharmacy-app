@@ -60,8 +60,7 @@ class MedicineService
                     $prices = $priceResponse->json()['prices'];
                     $lastPrice = null;
                     if (count($prices) > 0) {
-                        // Assuming prices are sorted by date in descending order
-                        $lastPrice = array_pop($prices)['unit_price'];
+                        $lastPrice = $this->getCurrentPrice($prices);
                     }
                     $medicine['last_price'] = $lastPrice;
                 }
@@ -76,6 +75,40 @@ class MedicineService
             throw $th;
         }
     }
+
+    /**
+     * Get current price based on today's date
+     * Logic: Find price that covers current date, or latest price if none covers current date
+     */
+    private function getCurrentPrice($prices)
+    {
+        $today = now()->format('Y-m-d');
+        $currentPrice = null;
+        $latestPrice = null;
+        $latestDate = null;
+
+        foreach ($prices as $price) {
+            $startDate = $price['start_date']['value'];
+            $endDate = $price['end_date']['value'] ?? null;
+
+            // Check if today falls within this price range
+            if ($startDate <= $today && ($endDate === null || $endDate >= $today)) {
+                $currentPrice = $price['unit_price'];
+                break;
+            }
+
+            // Keep track of the latest price (fallback)
+            if ($latestDate === null || $startDate > $latestDate) {
+                $latestDate = $startDate;
+                $latestPrice = $price['unit_price'];
+            }
+        }
+
+        // Return current price if found, otherwise return latest price
+        return $currentPrice ?? $latestPrice;
+    }
+
+
     public function getMedicinePriceById($id)
     {
         try {
@@ -94,9 +127,18 @@ class MedicineService
             }
 
             if ($response->status() === 200) {
-                return $response->json();
+                $data = $response->json();
+                
+                // Add current price to the response
+                if (isset($data['prices']) && count($data['prices']) > 0) {
+                    $data['current_price'] = $this->getCurrentPrice($data['prices']);
+                } else {
+                    $data['current_price'] = null;
+                }
+                
+                return $data;
             } else {
-                throw new BadRequestException('Failed to fetch medicines');
+                throw new BadRequestException('Failed to fetch medicine prices');
             }
         } catch (\Throwable $th) {
             throw $th;
