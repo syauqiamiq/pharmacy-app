@@ -9,6 +9,7 @@ use App\Http\Requests\Prescription\GetPrescriptionsRequest;
 use App\Http\Resources\Prescription\PrescriptionResource;
 use App\Http\Services\Prescription\PrescriptionService;
 use App\Traits\ApiFormatter;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -177,8 +178,8 @@ class PrescriptionController extends Controller
             $formattedData = new PrescriptionResource($result);
 
             return $this->successResponse($formattedData, "Prescription updated successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $th) {
+          return $this->errorResponse($th->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 

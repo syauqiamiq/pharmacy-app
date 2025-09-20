@@ -153,7 +153,7 @@ class PrescriptionService
 
             // Validasi status update jika ada perubahan status
             if (isset($data['status']) && $data['status'] !== $prescription->status) {
-                $this->validateStatusUpdate($prescription, $data['status'], $doctor, $pharmacist);
+                $this->validateStatusUpdate($prescription, $data['status'], $doctor, $pharmacist, $data);
             }
 
             $prescription->update($data);
@@ -241,7 +241,7 @@ class PrescriptionService
     /**
      * Validate status update based on business rules
      */
-    private function validateStatusUpdate($prescription, $newStatus, $doctor, $pharmacist)
+    private function validateStatusUpdate($prescription, $newStatus, $doctor, $pharmacist, $payload)
     {
         $currentStatus = $prescription->status;
 
@@ -253,8 +253,8 @@ class PrescriptionService
                 }
                 
                 // Cek quantity semua prescription details harus > 0
-                foreach ($prescription->prescriptionDetails as $detail) {
-                    if ($detail->quantity <= 0) {
+                foreach ($payload['prescription_details'] as $detail) {
+                    if ($detail['quantity'] <= 0) {
                         throw new BadRequestException('All prescription details must have quantity greater than 0');
                     }
                 }

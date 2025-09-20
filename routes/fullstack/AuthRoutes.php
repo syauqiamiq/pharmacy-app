@@ -10,4 +10,4 @@ Route::get('/', function () {
 })->middleware([CustomRedirectIfAuthenticated::class])->name('fe.auth.login');
 
 Route::post('/login', [AuthenticationController::class, 'login']);
-Route::post('/logout', [AuthenticationController::class, 'logout']);
+Route::post('/logout', [AuthenticationController::class, 'logout'])->middleware(['auth']);
