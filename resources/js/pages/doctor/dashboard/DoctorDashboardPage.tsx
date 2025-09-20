@@ -138,6 +138,12 @@ const DoctorDashboardPage = () => {
     return (
         <DashboardLayout title="Dasbor Dokter" breadcrumbItems={[{ title: 'Dokter' }, { title: 'Dasbor' }]}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <Alert
+                    message="UI ini dibuat dengan AI dan Dummy Data untuk keperluan mengisi kekosongan UI - Muhammad Syauqi Amiq Amrullah"
+                    type="info"
+                    showIcon
+                />
+
                 {/* Welcome Section */}
                 <Alert
                     message={`Selamat datang, Dr. ${props.auth.user.name}!`}
@@ -317,7 +323,7 @@ const DoctorDashboardPage = () => {
                         </>
                     }
                 >
-                    <Table dataSource={recentPatients} columns={patientColumns} rowKey="id" pagination={false} size="small" />
+                    <Table scroll={{ x: 800 }} dataSource={recentPatients} columns={patientColumns} rowKey="id" pagination={false} size="small" />
                 </Card>
 
                 {/* Performance Metrics */}

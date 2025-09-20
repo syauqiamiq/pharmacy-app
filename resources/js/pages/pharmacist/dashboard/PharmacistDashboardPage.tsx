@@ -172,6 +172,11 @@ const PharmacistDashboardPage = () => {
     return (
         <DashboardLayout title="Dasbor Apoteker" breadcrumbItems={[{ title: 'Apoteker' }, { title: 'Dasbor' }]}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <Alert
+                    message="UI ini dibuat dengan AI dan Dummy Data untuk keperluan mengisi kekosongan UI - Muhammad Syauqi Amiq Amrullah"
+                    type="info"
+                    showIcon
+                />
                 {/* Welcome Section */}
                 <Alert
                     message={`Selamat datang, Apt. ${props.auth.user.name}!`}
@@ -354,7 +359,7 @@ const PharmacistDashboardPage = () => {
                         </div>
                     }
                 >
-                    <Table dataSource={lowStockMedicines} columns={stockColumns} rowKey="name" pagination={false} size="small" />
+                    <Table scroll={{ x: 800 }} dataSource={lowStockMedicines} columns={stockColumns} rowKey="name" pagination={false} size="small" />
                 </Card>
 
                 {/* Recent Transactions & Performance */}
