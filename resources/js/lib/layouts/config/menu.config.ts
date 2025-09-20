@@ -36,13 +36,13 @@ export const menuConfig: MenuConfig = {
             key: 'doctor',
             label: 'Doctor',
             route: '/doctor/dashboard',
-            roles: ['DOCTOR', 'ADMIN'],
+            roles: ['DOCTOR'],
         },
         {
             key: 'pharmacist',
             label: 'Pharmacist',
             route: '/pharmacist/dashboard',
-            roles: ['PHARMACIST', 'ADMIN'],
+            roles: ['PHARMACIST'],
         },
         {
             key: 'admin',
@@ -58,7 +58,7 @@ export const menuConfig: MenuConfig = {
             label: 'Dasbor',
             icon: React.createElement(DashboardOutlined),
             route: '/doctor/dashboard',
-            roles: ['DOCTOR', 'ADMIN'],
+            roles: ['DOCTOR'],
             parentKey: 'doctor',
         },
         {
@@ -66,7 +66,7 @@ export const menuConfig: MenuConfig = {
             label: 'Kunjungan',
             icon: React.createElement(CalendarOutlined),
             route: '/doctor/visit',
-            roles: ['DOCTOR', 'ADMIN'],
+            roles: ['DOCTOR'],
             parentKey: 'doctor',
         },
 
@@ -76,7 +76,7 @@ export const menuConfig: MenuConfig = {
             label: 'Dasbor',
             icon: React.createElement(DashboardOutlined),
             route: '/pharmacist/dashboard',
-            roles: ['PHARMACIST', 'ADMIN'],
+            roles: ['PHARMACIST'],
             parentKey: 'pharmacist',
         },
         {
@@ -84,7 +84,7 @@ export const menuConfig: MenuConfig = {
             label: 'Resep Obat',
             icon: React.createElement(MedicineBoxOutlined),
             route: '/pharmacist/prescription',
-            roles: ['PHARMACIST', 'ADMIN'],
+            roles: ['PHARMACIST'],
             parentKey: 'pharmacist',
         },
 
