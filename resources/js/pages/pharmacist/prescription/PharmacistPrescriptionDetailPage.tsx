@@ -30,7 +30,10 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
 
     return (
         <>
-            <DashboardLayout title="Resep Obat - Detail" breadcrumbItems={[{ title: 'Apoteker' }, { title: 'Resep Obat' }, { title: 'Detail' }]}>
+            <DashboardLayout
+                title="Resep Obat - Detail"
+                breadcrumbItems={[{ title: 'Apoteker' }, { title: 'Resep Obat', href: '/pharmacist/prescription' }, { title: 'Detail' }]}
+            >
                 {!isLoading && prescriptionData && (
                     <Space direction="vertical" size="middle" className="w-full">
                         <div className="flex w-full gap-3 lg:justify-end">
@@ -48,7 +51,7 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                     Invoice
                                 </Button>
                             )}
-                            {prescriptionData?.data?.status === 'PENDING_VALIDATION' && (
+                            {['PENDING_VALIDATION', 'ON_HOLD'].includes(prescriptionData?.data?.status) && (
                                 <>
                                     <Button
                                         type="primary"

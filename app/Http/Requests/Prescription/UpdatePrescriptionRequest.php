@@ -34,7 +34,7 @@ class UpdatePrescriptionRequest extends FormRequest
             'prescription_details.*.frequency' => 'required_with:prescription_details|string|max:255',
             'prescription_details.*.duration' => 'required_with:prescription_details|string|max:255',
             'prescription_details.*.note' => 'nullable|string|max:500',
-            'prescription_details.*.quantity' => 'nullable|integer|min:1',
+            'prescription_details.*.quantity' => 'nullable|integer|min:0',
         ];
     }
 

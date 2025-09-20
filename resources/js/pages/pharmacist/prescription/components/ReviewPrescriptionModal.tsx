@@ -1,4 +1,5 @@
 import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
+import { getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
 import { useGetAllMedicine } from '@/lib/services/medicine.service';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -33,7 +34,7 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
 
     const { data: prescriptionData, isLoading } = useGetPrescriptionById(data?.id);
 
-    const { handleSubmit, setValue, control } = methods;
+    const { handleSubmit, setValue, control, watch } = methods;
 
     const {
         fields: prescriptionDetailsFields,
@@ -49,6 +50,7 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
             setValue('pharmacist_id', props.pharmacistId || '');
             setValue('pharmacist_name', props.auth.user.name);
             setValue('pharmacist_note', prescriptionData?.data?.pharmacist_note || '');
+            setValue('status', prescriptionData?.data?.status || '');
             setValue(
                 'prescriptionDetails',
                 (prescriptionData?.data?.prescription_details ?? []).map((v) => {
@@ -94,11 +96,23 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
                     confirmLoading={false}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
+                        <div>
+                            <h3 className="text-lg font-semibold">Nama Dokter</h3>
+                            <div className="text-md mt-1">{prescriptionData?.data?.doctor_name || '-'}</div>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">Catatan Dokter</h3>
+                            <div className="text-md mt-1">{prescriptionData?.data?.doctor_note || '-'}</div>
+                        </div>
                         <FormInput name="pharmacist_name" label="Nama Apoteker" disabled={props.auth.user.name !== undefined} />
                         <FormSelectInput
                             label="Status"
                             name="status"
                             placeholder="Status"
+                            value={{
+                                label: getPrescriptionStatusText(watch('status')),
+                                value: watch('status'),
+                            }}
                             options={[
                                 {
                                     label: 'Terima',
@@ -159,8 +173,13 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
                                     </div>
                                 </div>
                                 <div className="lg:col-spa-6 col-span-6">
-                                        <FormInput type='number' label="Jumlah Obat (Diisi oleh Apoteker)" name={`prescriptionDetails.${index}.quantity`} placeholder="Jumlah Obat" />
-                                    </div>
+                                    <FormInput
+                                        type="number"
+                                        label="Jumlah Obat (Diisi oleh Apoteker)"
+                                        name={`prescriptionDetails.${index}.quantity`}
+                                        placeholder="Jumlah Obat"
+                                    />
+                                </div>
                                 <div className="grid grid-cols-12 gap-3">
                                     <div className="col-span-12 lg:col-span-12">
                                         <Button className={'w-full'} danger onClick={() => removePrescriptionDetailsFields(index)}>

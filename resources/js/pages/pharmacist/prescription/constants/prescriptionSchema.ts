@@ -15,7 +15,7 @@ export const prescriptionSchema = yup
                     dosage: yup.string().required('Dosis is required'),
                     frequency: yup.string().required('Frekuensi is required'),
                     duration: yup.string().required('Durasi is required'),
-                    quantity: yup.number().moreThan(0, 'Kuantitas harus lebih dari 0').typeError('Kuantitas harus berupa angka').required('Kuantitas is required'),
+                    quantity: yup.number().typeError('Kuantitas harus berupa angka').required('Kuantitas is required'),
                     note: yup.string().optional(),
                 }),
             )

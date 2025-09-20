@@ -214,7 +214,7 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                                             <ArrowLeftOutlined className="!text-red-500" />
                                                         </Popconfirm>
                                                     )}
-                                                    {record.status === 'DRAFT' && (
+                                                    {['DRAFT', 'REJECTED'].includes(record.status) && (
                                                         <Popconfirm
                                                             title="Hapus Resep Obat"
                                                             description={`Anda ingin hapus resep obat ini?`}
@@ -233,14 +233,14 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                                         className="!text-blue-500"
                                                         onClick={() => setDetailPrescriptionDialogState({ open: true, data: record })}
                                                     />
-                                                    {record.status === 'DRAFT' && (
+                                                    {['DRAFT', 'REJECTED'].includes(record.status) && (
                                                         <EditOutlined
                                                             className="!text-green-500"
                                                             onClick={() => setEditPrescriptionDialogState({ open: true, data: record })}
                                                         />
                                                     )}
 
-                                                    {['DRAFT'].includes(record.status) && (
+                                                    {['DRAFT', 'REJECTED'].includes(record.status) && (
                                                         <Popconfirm
                                                             title="Lanjtutkan Resep Obat"
                                                             description={`Anda ingin lanjutkan resep obat ini ke farmasi?`}
