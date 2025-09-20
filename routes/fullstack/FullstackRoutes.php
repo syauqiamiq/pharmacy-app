@@ -23,3 +23,10 @@ Route::group([
     'prefix' => null,
     "middleware" => [MustAuthenticated::class]
 ], base_path('routes/fullstack/DoctorRoutes.php'));
+
+
+Route::group([
+    'name' => "PharmacistRoutes",
+    'prefix' => null,
+    "middleware" => [MustAuthenticated::class]
+], base_path('routes/fullstack/PharmacistRoutes.php'));
