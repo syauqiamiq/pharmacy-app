@@ -61,7 +61,7 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
         <>
             <DashboardLayout
                 title="Kunjungan Dokter - Pemeriksaan"
-                breadcrumbItems={[{ title: 'Dashboard' }, { title: 'Doctor' }, { title: 'Visit' }, { title: 'Anamnesis' }]}
+                breadcrumbItems={[{ title: 'Dokter' }, { title: 'Kunjungan', href: `/doctor/visit` }, { title: 'Detail' }]}
             >
                 <Space direction="vertical" size="large" className="mt-6 w-full">
                     <Tag color={getVisitStatusColor(data?.data.status || 'SCHEDULED')}>{getVisitStatusText(data?.data.status || 'SCHEDULED')}</Tag>

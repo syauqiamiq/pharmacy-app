@@ -43,7 +43,7 @@ const DoctorVisitPage = () => {
     };
 
     return (
-        <DashboardLayout title="Kunjungan Dokter" breadcrumbItems={[{ title: 'Dashboard' }, { title: 'Doctor' }, { title: 'Visit' }]}>
+        <DashboardLayout title="Kunjungan Dokter" breadcrumbItems={[{ title: 'Dokter' }, { title: 'Kunjungan' }]}>
             <Space direction="vertical" size="large" className="mt-4 w-full">
                 <div className="mb-6 grid w-full grid-cols-1 gap-3 lg:grid-cols-6">
                     <div>

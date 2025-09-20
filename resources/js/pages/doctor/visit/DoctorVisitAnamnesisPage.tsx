@@ -130,7 +130,7 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
     return (
         <DashboardLayout
             title="Kunjungan Dokter - Pemeriksaan"
-            breadcrumbItems={[{ title: 'Dashboard' }, { title: 'Doctor' }, { title: 'Visit' }, { title: 'Anamnesis' }]}
+            breadcrumbItems={[{ title: 'Dokter' }, { title: 'Kunjungan', href: `/doctor/visit` }, { title: 'Anamnesis' }]}
         >
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(onSubmit)}>
