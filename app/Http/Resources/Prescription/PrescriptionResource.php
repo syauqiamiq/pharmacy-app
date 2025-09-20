@@ -29,6 +29,7 @@ class PrescriptionResource extends JsonResource
             'pharmacist_name' => $this->pharmacist_name,
             'pharmacist_note' => $this->pharmacist_note,
             'status' => $this->status,
+            'invoice_status' => $this->prescriptionInvoices()->latest()->first() ? $this->prescriptionInvoices()->latest()->first()->status : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'doctor' => new DoctorResource($this->whenLoaded('doctor')),

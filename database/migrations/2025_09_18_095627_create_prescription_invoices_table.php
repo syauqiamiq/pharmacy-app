@@ -17,7 +17,7 @@ return new class extends Migration
             $table->double('total_amount')->index();
             $table->string('status')->index()->comment("PENDING, PAID, CANCELED");
             $table->timestamp('issued_at')->index();
-            $table->timestamp('paid_at')->index();
+            $table->timestamp('paid_at')->index()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

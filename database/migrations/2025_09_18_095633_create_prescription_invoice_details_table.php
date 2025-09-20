@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('prescription_invoice_details', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('prescription_invoice_id')->nullable()->index()->references("id")->on("prescription_invoices")->onDelete("SET NULL");
-            $table->integer('description')->index();
+            $table->string('description')->index();
             $table->integer('quantity')->index();
             $table->double('unit_price')->index();
             $table->double('total_price')->index();

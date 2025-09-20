@@ -19,6 +19,7 @@ class PrescriptionDetail extends Model
         'frequency',
         'duration',
         'note',
+        'quantity',
     ];
 
     public function prescription()

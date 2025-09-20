@@ -198,7 +198,7 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                         render: (record) => {
                                             return (
                                                 <Space size="middle">
-                                                    {['PENDING_VALIDATION', 'VALIDATED', 'ON_HOLD'].includes(record.status) && (
+                                                    {['PENDING_VALIDATION', 'ON_HOLD'].includes(record.status) && (
                                                         <Popconfirm
                                                             title="Tarik Resep Obat"
                                                             description={`Anda ingin tarik resep obat ini?`}

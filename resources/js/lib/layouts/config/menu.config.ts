@@ -87,14 +87,6 @@ export const menuConfig: MenuConfig = {
             roles: ['PHARMACIST', 'ADMIN'],
             parentKey: 'pharmacist',
         },
-        {
-            key: '/pharmacist/inventory',
-            label: 'Inventori',
-            icon: React.createElement(MedicineBoxOutlined),
-            route: '/pharmacist/inventory',
-            roles: ['PHARMACIST', 'ADMIN'],
-            parentKey: 'pharmacist',
-        },
 
         // Admin section
         {

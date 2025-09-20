@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('doctor_note')->nullable()->index();
             $table->string('pharmacist_name')->nullable()->index();
             $table->string('pharmacist_note')->nullable()->index();
-            $table->string('status')->index()->comment("DRAFT, PENDING_VALIDATION, VALIDATED, ON_HOLD,DISPENSING, , PARTIALLY_DISPENSED, DISPENSED, REJECTED, CANCELED, RETURNED, EXPIRED");
+            $table->string('status')->index()->comment("DRAFT, PENDING_VALIDATION, VALIDATED, ON_HOLD,DISPENSING, DISPENSED, DONE, REJECTED, CANCELED, RETURNED, EXPIRED");
             $table->timestamps();
             $table->softDeletes();
         });

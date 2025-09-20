@@ -3,12 +3,13 @@ import { useGetAllMedicine } from '@/lib/services/medicine.service';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { DeleteOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { usePage } from '@inertiajs/react';
 import { Button, Modal, Space } from 'antd';
 import { useEffect } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { prescriptionSchema } from '../constants/prescriptionSchema';
 
-interface IEditPrescriptionModalProps {
+interface IReviewPrescriptionModalProps {
     open: boolean;
     onCancel: () => void;
     data?: any;
@@ -16,11 +17,14 @@ interface IEditPrescriptionModalProps {
 }
 
 const defaultValues = {
-    doctor_name: '',
-    doctor_note: '',
+    pharmacist_id: '',
+    pharmacist_name: '',
+    pharmacist_note: '',
+    status: '',
     prescriptionDetails: [],
 };
-const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalProps) => {
+const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionModalProps) => {
+    const { props } = usePage<any>();
     const methods = useForm({
         defaultValues,
         resolver: yupResolver(prescriptionSchema),
@@ -42,8 +46,9 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
 
     useEffect(() => {
         if (isLoading === false && prescriptionData) {
-            setValue('doctor_name', prescriptionData?.data?.doctor_name);
-            setValue('doctor_note', prescriptionData?.data?.doctor_note);
+            setValue('pharmacist_id', props.pharmacistId || '');
+            setValue('pharmacist_name', props.auth.user.name);
+            setValue('pharmacist_note', prescriptionData?.data?.pharmacist_note || '');
             setValue(
                 'prescriptionDetails',
                 (prescriptionData?.data?.prescription_details ?? []).map((v) => {
@@ -53,6 +58,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                         dosage: v.dosage ?? '',
                         frequency: v.frequency ?? '',
                         duration: v.duration ?? '',
+                        quantity: v.quantity ?? 0,
                         note: v.note ?? '',
                     };
                 }),
@@ -65,10 +71,12 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
     const updatePrescription = useUpdatePrescription();
 
     const onSubmit = async (formData: any) => {
-        console.log(formData);
         await updatePrescription.mutateAsync({
             prescription_id: data.id,
-            doctor_note: formData.doctor_note,
+            pharmacist_id: formData.pharmacist_id,
+            pharmacist_name: formData.pharmacist_name,
+            pharmacist_note: formData.pharmacist_note,
+            status: formData.status,
             prescription_details: formData.prescriptionDetails,
         });
         onCancel();
@@ -86,8 +94,27 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                     confirmLoading={false}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
-                        <FormInput name="doctor_name" label="Nama Dokter" disabled={prescriptionData?.data?.doctor_name !== undefined} />
-                        <FormInputArea name="doctor_note" label="Catatan Dokter" placeholder="Masukkan catatan" />
+                        <FormInput name="pharmacist_name" label="Nama Apoteker" disabled={props.auth.user.name !== undefined} />
+                        <FormSelectInput
+                            label="Status"
+                            name="status"
+                            placeholder="Status"
+                            options={[
+                                {
+                                    label: 'Terima',
+                                    value: 'VALIDATED',
+                                },
+                                {
+                                    label: 'Tolak',
+                                    value: 'REJECTED',
+                                },
+                                {
+                                    label: 'Tunda',
+                                    value: 'ON_HOLD',
+                                },
+                            ]}
+                        />
+                        <FormInputArea name="pharmacist_note" label="Catatan Apoteker" placeholder="Masukkan catatan" />
                         <h3 className="text-lg font-semibold">Detail Resep</h3>
                         {prescriptionDetailsFields.map((field: any, index) => (
                             <>
@@ -105,8 +132,8 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                                                 }
                                             }}
                                             defaultValue={{
-                                                label: field.medicine_name,
-                                                value: field.medicine_id,
+                                                label: field.medicine_name || 'Pilih Obat',
+                                                value: field.medicine_id || '',
                                             }}
                                             options={
                                                 medicines?.data.map((medicine) => ({
@@ -131,6 +158,9 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                                         <FormInput label="Catatan" name={`prescriptionDetails.${index}.note`} placeholder="Catatan" />
                                     </div>
                                 </div>
+                                <div className="lg:col-spa-6 col-span-6">
+                                        <FormInput type='number' label="Jumlah Obat (Diisi oleh Apoteker)" name={`prescriptionDetails.${index}.quantity`} placeholder="Jumlah Obat" />
+                                    </div>
                                 <div className="grid grid-cols-12 gap-3">
                                     <div className="col-span-12 lg:col-span-12">
                                         <Button className={'w-full'} danger onClick={() => removePrescriptionDetailsFields(index)}>
@@ -163,4 +193,4 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
     );
 };
 
-export default EditPrescriptionModal;
+export default ReviewPrescriptionModal;

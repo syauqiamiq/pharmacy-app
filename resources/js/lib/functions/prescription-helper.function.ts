@@ -10,9 +10,9 @@ export const getPrescriptionStatusColor = (status: string) => {
             return 'gray';
         case 'DISPENSING':
             return 'orange';
-        case 'PARTIALLY_DISPENSED':
-            return 'green';
         case 'DISPENSED':
+            return 'green';
+        case 'DONE':
             return 'green';
         case 'REJECTED':
             return 'red';
@@ -40,10 +40,10 @@ export const getPrescriptionStatusText = (status: string) => {
             return 'Ditunda';
         case 'DISPENSING':
             return 'Sedang Dibuat';
-        case 'PARTIALLY_DISPENSED':
-            return 'Sebagian Diserahkan';
         case 'DISPENSED':
-            return 'Diserahkan Seluruhnya';
+            return 'Siap Diambil';
+        case 'DONE':
+            return 'Selesai';
         case 'REJECTED':
             return 'Ditolak';
         case 'CANCELED':

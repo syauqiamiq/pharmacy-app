@@ -23,6 +23,7 @@ class PrescriptionDetailResource extends JsonResource
             'frequency' => $this->frequency,
             'duration' => $this->duration,
             'note' => $this->note,
+            'quantity' => $this->quantity,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

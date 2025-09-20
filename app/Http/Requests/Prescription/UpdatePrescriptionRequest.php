@@ -22,8 +22,11 @@ class UpdatePrescriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'pharmacist_id' => 'sometimes|string|max:1000',
+            'pharmacist_name' => 'sometimes|string|max:1000',
+            'pharmacist_note' => 'sometimes|string|max:1000',
             'doctor_note' => 'sometimes|string|max:1000',
-            'status' => 'sometimes|string|in:DRAFT,PENDING_VALIDATION,VALIDATED,ON_HOLD,DISPENSING,PARTIALLY_DISPENSED,DISPENSED,REJECTED,CANCELED,RETURN,EXPIRED',
+            'status' => 'sometimes|string|in:DRAFT,PENDING_VALIDATION,VALIDATED,ON_HOLD,DISPENSING,DISPENSED,DONE,REJECTED,CANCELED,RETURN,EXPIRED',
             'prescription_details' => 'sometimes|array',
             'prescription_details.*.medicine_id' => 'nullable|string',
             'prescription_details.*.medicine_name' => 'required_with:prescription_details|string|max:255',
@@ -31,6 +34,7 @@ class UpdatePrescriptionRequest extends FormRequest
             'prescription_details.*.frequency' => 'required_with:prescription_details|string|max:255',
             'prescription_details.*.duration' => 'required_with:prescription_details|string|max:255',
             'prescription_details.*.note' => 'nullable|string|max:500',
+            'prescription_details.*.quantity' => 'nullable|integer|min:1',
         ];
     }
 

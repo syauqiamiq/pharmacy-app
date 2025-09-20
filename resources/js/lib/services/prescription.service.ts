@@ -23,6 +23,13 @@ const useGetPrescriptionById = (prescriptionId: string) =>
             axios.get(`${API_BASE_URL}/api/v1/prescription/${prescriptionId}`).then((res) => res.data),
     });
 
+const useGetAllPrescription = (paginateRequest: IPaginateRequest) =>
+    useQuery({
+        queryKey: [QKEY_PRESCRIPTION, { ...paginateRequest }],
+        queryFn: async (): Promise<IApiResponse<IPrescriptionResponse[]>> =>
+            axios.get(`${API_BASE_URL}/api/v1/prescription?${generateUrlParams(paginateRequest)}`).then((res) => res.data),
+    });
+
 const useCreatePrescription = () => {
     const queryClient = useQueryClient();
 
@@ -66,4 +73,11 @@ const useDeletePrescription = () => {
     });
 };
 
-export { useCreatePrescription, useDeletePrescription, useGetAllPrescriptionByAnamnesisId, useGetPrescriptionById, useUpdatePrescription };
+export {
+    useCreatePrescription,
+    useDeletePrescription,
+    useGetAllPrescription,
+    useGetAllPrescriptionByAnamnesisId,
+    useGetPrescriptionById,
+    useUpdatePrescription,
+};
