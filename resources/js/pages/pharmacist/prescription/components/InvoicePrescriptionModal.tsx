@@ -121,10 +121,6 @@ const InvoicePrescriptionModal = ({ data, open, onCancel }: IInvoicePrescription
                                         label: 'Belum Lunas',
                                         value: 'PENDING',
                                     },
-                                    {
-                                        label: 'Batal',
-                                        value: 'CANCELED',
-                                    },
                                 ]}
                             />
                         ) : (

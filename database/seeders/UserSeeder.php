@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
 
         $createdDoctorUser = User::create(
             [
-                'name' => 'Doctor',
+                'name' => 'dr. Fulan, Sp.PD',
                 'email' => 'doctor@dev.com',
                 'password' => Hash::make('doctor123123'),
                 'is_active' => true,
@@ -46,8 +46,8 @@ class UserSeeder extends Seeder
         );
         Doctor::create([
             'user_id' => $createdDoctorUser->id,
-            'specialization' => 'Dokter Umum',
-            'license_number' => '1231233123123',
+            'specialization' => 'Spesialis Penyakit Dalam',
+            'license_number' => 'SIP-DR-2024-02145',
         ]);
         $doctorRole = Role::where('name', 'Doctor')->first();
         if ($doctorRole) {
@@ -59,7 +59,7 @@ class UserSeeder extends Seeder
 
         $createdPharmacistUser = User::create(
             [
-                'name' => 'Pharmacist',
+                'name' => 'Apt. Dwi Handayani, S.Farm., M.Farm',
                 'email' => 'pharmacist@dev.com',
                 'password' => Hash::make('pharmacist123123'),
                 'is_active' => true,
@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
         );
         Pharmacist::create([
             'user_id' => $createdPharmacistUser->id,
-            'license_number' => '1231233123123',
+            'license_number' => 'SIP-AP-2022-88012',
         ]);
         $pharmacistRole = Role::where('name', 'Pharmacist')->first();
         if ($pharmacistRole) {

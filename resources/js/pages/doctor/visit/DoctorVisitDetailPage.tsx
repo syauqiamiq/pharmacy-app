@@ -3,12 +3,13 @@ import DashboardLayout from '@/lib/layouts/DashboardLayout';
 
 import { BaseTable } from '@/lib/components/molecules/table';
 import { getPrescriptionStatusColor, getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
+import { getVisitStatusColor, getVisitStatusText } from '@/lib/functions/visit-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
 import { useDeletePrescription, useGetAllPrescriptionByAnamnesisId, useUpdatePrescription } from '@/lib/services/prescription.service';
-import { useGetVisitByID } from '@/lib/services/visit.service';
+import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
 import { ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Button, Card, Popconfirm, Space, Tag, Typography } from 'antd';
+import { Alert, Button, Card, Popconfirm, Space, Tag, Typography } from 'antd';
 import CreatePrescriptionModal from './components/CreatePrescriptionModal';
 import DetailPrescriptionModal from './components/DetailPrescriptionModal';
 import EditPrescriptionModal from './components/EditPrescriptionModal';
@@ -22,6 +23,7 @@ interface IDoctorVisitDetailPageProps {
 
 const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
     const { data, isLoading } = useGetVisitByID(props.visitId as string);
+    const updateVisit = useUpdateVisit();
 
     const { paginateRequest, handlePageChange, handleSearchChange, handleOptionalChange, handleSortChange } = useTableAsync({});
 
@@ -60,6 +62,53 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                 breadcrumbItems={[{ title: 'Dashboard' }, { title: 'Doctor' }, { title: 'Visit' }, { title: 'Anamnesis' }]}
             >
                 <Space direction="vertical" size="large" className="mt-6 w-full">
+                    <Tag color={getVisitStatusColor(data?.data.status || 'SCHEDULED')}>{getVisitStatusText(data?.data.status || 'SCHEDULED')}</Tag>
+                    <Alert message="Anda tetap bisa menambahkan resep obat ketika pemeriksaan berakhir" type="info" showIcon />
+                    {data?.data.status === 'DONE' ? null : (
+                        <div className="flex w-full justify-center">
+                            <Button
+                                type="primary"
+                                size="large"
+                                className="min-w-32 !bg-red-500 hover:!bg-red-600"
+                                onClick={async () =>
+                                    await updateVisit.mutateAsync({
+                                        visit_id: props.visitId as string,
+                                        status: 'DONE',
+                                    })
+                                }
+                                loading={updateVisit.isPending}
+                            >
+                                Akhiri Pemeriksaan
+                            </Button>
+                        </div>
+                    )}
+                    {/* Data Dokter Section */}
+                    <Card className="shadow-md">
+                        <Title level={3} className="mb-4">
+                            Data Dokter
+                        </Title>
+
+                        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                            <div className="border-l-4 border-blue-500 pl-4">
+                                <Text strong className="text-base">
+                                    Nama Dokter
+                                </Text>
+                                <div className="mt-1 text-lg">{data?.data.doctor?.user?.name || '-'}</div>
+                            </div>
+                            <div className="border-l-4 border-green-500 pl-4">
+                                <Text strong className="text-base">
+                                    Nomor Lisensi
+                                </Text>
+                                <div className="mt-1 text-lg">{data?.data.doctor?.license_number || '-'}</div>
+                            </div>
+                            <div className="border-l-4 border-orange-500 pl-4">
+                                <Text strong className="text-base">
+                                    Spesialisasi
+                                </Text>
+                                <div className="mt-1 text-lg">{data?.data.doctor?.specialization || '-'}</div>
+                            </div>
+                        </div>
+                    </Card>
                     {/* Data Pasien Section */}
                     <Card className="shadow-md">
                         <Title level={3} className="mb-4">

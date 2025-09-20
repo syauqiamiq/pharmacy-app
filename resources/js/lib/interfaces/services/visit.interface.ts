@@ -12,3 +12,8 @@ export interface IVisitResponse {
     patient?: IPatientResponse;
     anamnesis?: IAnamnesisResponse;
 }
+
+export interface IUpdateVisitPayload {
+    visit_id: string;
+    status?: string;
+}

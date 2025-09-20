@@ -37,7 +37,7 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                 {!isLoading && prescriptionData && (
                     <Space direction="vertical" size="middle" className="w-full">
                         <div className="flex w-full gap-3 lg:justify-end">
-                            {['VALIDATED', 'DISPENSING', 'DISPENSED', 'ON_HOLD', 'DONE'].includes(prescriptionData?.data?.status) && (
+                            {['VALIDATED', 'DISPENSING', 'DISPENSED', 'DONE'].includes(prescriptionData?.data?.status) && (
                                 <Button
                                     type="dashed"
                                     className="w-full lg:w-auto"
@@ -99,7 +99,7 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                     <Button
                                         disabled={prescriptionData?.data?.invoice_status !== 'PAID'}
                                         type="primary"
-                                        className="w-full !bg-green-300 lg:w-auto"
+                                        className="w-full !bg-cyan-500 lg:w-auto"
                                         onClick={async () => {
                                             await updatePrescription.mutateAsync({
                                                 prescription_id: prescriptionData.data.id,

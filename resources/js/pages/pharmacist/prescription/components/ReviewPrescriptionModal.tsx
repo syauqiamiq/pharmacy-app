@@ -1,5 +1,4 @@
 import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
-import { getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
 import { useGetAllMedicine } from '@/lib/services/medicine.service';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -34,7 +33,7 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
 
     const { data: prescriptionData, isLoading } = useGetPrescriptionById(data?.id);
 
-    const { handleSubmit, setValue, control, watch } = methods;
+    const { handleSubmit, setValue, control } = methods;
 
     const {
         fields: prescriptionDetailsFields,
@@ -50,7 +49,6 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
             setValue('pharmacist_id', props.pharmacistId || '');
             setValue('pharmacist_name', props.auth.user.name);
             setValue('pharmacist_note', prescriptionData?.data?.pharmacist_note || '');
-            setValue('status', prescriptionData?.data?.status || '');
             setValue(
                 'prescriptionDetails',
                 (prescriptionData?.data?.prescription_details ?? []).map((v) => {
@@ -109,21 +107,17 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
                             label="Status"
                             name="status"
                             placeholder="Status"
-                            value={{
-                                label: getPrescriptionStatusText(watch('status')),
-                                value: watch('status'),
-                            }}
                             options={[
                                 {
-                                    label: 'Terima',
+                                    label: 'Tervalidasi',
                                     value: 'VALIDATED',
                                 },
                                 {
-                                    label: 'Tolak',
+                                    label: 'Ditolak',
                                     value: 'REJECTED',
                                 },
                                 {
-                                    label: 'Tunda',
+                                    label: 'Ditunda',
                                     value: 'ON_HOLD',
                                 },
                             ]}

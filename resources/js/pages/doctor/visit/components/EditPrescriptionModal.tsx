@@ -85,6 +85,14 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                     confirmLoading={false}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
+                        <div>
+                            <h3 className="text-lg font-semibold">Nama Apoteker</h3>
+                            <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_name || '-'}</div>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">Catatan Apoteker</h3>
+                            <div className="text-md mt-1">{prescriptionData?.data?.pharmacist_note || '-'}</div>
+                        </div>
                         <FormInput name="doctor_name" label="Nama Dokter" disabled={prescriptionData?.data?.doctor_name !== undefined} />
                         <FormInputArea name="doctor_note" label="Catatan Dokter" placeholder="Masukkan catatan" />
                         <h3 className="text-lg font-semibold">Detail Resep</h3>
