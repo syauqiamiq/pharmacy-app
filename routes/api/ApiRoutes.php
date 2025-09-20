@@ -9,6 +9,12 @@ Route::group([
 ], base_path('routes/api/VisitRoutes.php'));
 
 Route::group([
+    'name' => "PatientRoutes",
+    'prefix' => null,
+    "middleware" => ['auth']
+], base_path('routes/api/PatientRoutes.php'));
+
+Route::group([
     'name' => "AnamnesisRoutes",
     'prefix' => null,
     "middleware" => ['auth']
