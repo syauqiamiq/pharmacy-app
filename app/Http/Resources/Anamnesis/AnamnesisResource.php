@@ -33,6 +33,7 @@ class AnamnesisResource extends JsonResource
             'doctor' => new DoctorResource($this->whenLoaded('doctor')),
             'visit' => new VisitResource($this->whenLoaded('visit')),
             'anamnesis_details' => AnamnesisDetailResource::collection($this->whenLoaded('anamnesisDetails')),
+            'anamnesis_attachments' => AnamnesisAttachmentResource::collection($this->whenLoaded('anamnesisAttachments')),
         ];
     }
 }

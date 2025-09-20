@@ -11,6 +11,7 @@ export interface ICreateAnamnesisPayload {
     madication_history?: string;
     physical_exam?: string;
     note?: string;
+    files?: File[];
     anamnesis_details?: {
         key: string;
         value: string;
@@ -35,6 +36,7 @@ export interface IAnamnesisResponse {
     doctor?: IDoctorResponse;
     visit?: IVisitResponse;
     anamnesis_details?: IAnamnesisDetail[];
+    anamnesis_attachments?: IAnamnesisAttachment[];
 }
 
 export interface IAnamnesisDetail {
@@ -43,4 +45,13 @@ export interface IAnamnesisDetail {
     key: string;
     value: string;
     unit: string;
+}
+
+export interface IAnamnesisAttachment {
+    id: string;
+    anamnesis_id: string;
+    document_name: string;
+    path: string;
+    url: string;
+    created_at: string;
 }

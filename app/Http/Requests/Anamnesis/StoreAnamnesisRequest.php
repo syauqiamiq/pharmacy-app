@@ -31,6 +31,8 @@ class StoreAnamnesisRequest extends FormRequest
             'madication_history' => 'nullable|string|max:1000',
             'physical_exam' => 'nullable|string|max:1000',
             'note' => 'nullable|string|max:1000',
+            'files' => 'nullable|array',
+            'files.*' => 'file|mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx|max:10192',
             'anamnesis_details' => 'nullable|array',
             'anamnesis_details.*.key' => 'required_with:anamnesis_details|string|max:255',
             'anamnesis_details.*.value' => 'required_with:anamnesis_details|string|max:255',

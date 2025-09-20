@@ -5,12 +5,14 @@ namespace App\Http\Services\Anamnesis;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Anamnesis;
+use App\Models\AnamnesisAttachment;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class AnamnesisService
 {
-    public function createAnamnesis($data, $userId)
+    public function createAnamnesis($data, $userId, $files = [])
     {
         try {
             $user = User::find($userId);
@@ -67,7 +69,102 @@ class AnamnesisService
                 }
             }
 
-            return $anamnesis->load(['doctor.user', 'visit.patient', 'anamnesisDetails']);
+            // Handle file uploads if provided
+            if (!empty($files)) {
+                $this->uploadAnamnesisFiles($anamnesis->id, $files);
+            }
+
+            return $anamnesis->load(['doctor.user', 'visit.patient', 'anamnesisDetails', 'anamnesisAttachments']);
+        } catch (Exception $err) {
+            throw $err;
+        }
+    }
+
+    public function uploadAnamnesisFiles($anamnesisId, $files, $userId = null)
+    {
+        try {
+            // If userId is provided, validate access to anamnesis
+            if ($userId) {
+                $user = User::find($userId);
+                if (!$user) {
+                    throw new BadRequestException('User not found');
+                }
+
+                $doctor = $user->doctor;
+                if (!$doctor) {
+                    throw new BadRequestException('User not a doctor');
+                }
+
+                $anamnesis = Anamnesis::where('id', $anamnesisId)
+                    ->where('doctor_id', $doctor->id)
+                    ->first();
+
+                if (!$anamnesis) {
+                    throw new BadRequestException('Anamnesis not found or you do not have access to this anamnesis');
+                }
+            }
+
+            $uploadedFiles = [];
+
+            foreach ($files as $file) {
+                // Store file in anamnesis folder
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('anamnesis/' . $anamnesisId, $fileName, 'public');
+
+                // Create attachment record
+                $attachment = AnamnesisAttachment::create([
+                    'anamnesis_id' => $anamnesisId,
+                    'document_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                ]);
+
+                $uploadedFiles[] = $attachment;
+            }
+
+            return $uploadedFiles;
+        } catch (Exception $err) {
+            throw $err;
+        }
+    }
+
+    public function deleteAnamnesisFile($attachmentId, $userId)
+    {
+        try {
+            $user = User::find($userId);
+
+            if (!$user) {
+                throw new BadRequestException('User not found');
+            }
+
+            $doctor = $user->doctor;
+
+            if (!$doctor) {
+                throw new BadRequestException('User not a doctor');
+            }
+
+            // Find attachment with anamnesis relationship
+            $attachment = AnamnesisAttachment::with('anamnesis')
+                ->where('id', $attachmentId)
+                ->first();
+
+            if (!$attachment) {
+                throw new BadRequestException('Attachment not found');
+            }
+
+            // Check if doctor has access to this anamnesis
+            if ($attachment->anamnesis->doctor_id !== $doctor->id) {
+                throw new BadRequestException('You do not have access to this attachment');
+            }
+
+            // Delete file from storage
+            if (Storage::disk('public')->exists($attachment->path)) {
+                Storage::disk('public')->delete($attachment->path);
+            }
+
+            // Delete attachment record
+            $attachment->delete();
+
+            return true;
         } catch (Exception $err) {
             throw $err;
         }
@@ -88,7 +185,7 @@ class AnamnesisService
                 throw new BadRequestException('User not a doctor');
             }
 
-            $anamnesis = Anamnesis::with(['doctor.user', 'visit.patient', 'anamnesisDetails'])
+            $anamnesis = Anamnesis::with(['doctor.user', 'visit.patient', 'anamnesisDetails', 'anamnesisAttachments'])
                 ->where('id', $anamnesisId)
                 ->where('doctor_id', $doctor->id)
                 ->first();
@@ -170,7 +267,7 @@ class AnamnesisService
                 }
             }
 
-            return $anamnesis->load(['doctor.user', 'visit.patient', 'anamnesisDetails']);
+            return $anamnesis->load(['doctor.user', 'visit.patient', 'anamnesisDetails', 'anamnesisAttachments']);
         } catch (Exception $err) {
             throw $err;
         }

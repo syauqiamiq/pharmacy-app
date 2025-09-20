@@ -6,10 +6,12 @@ import { ICreateAnamnesisPayload } from '@/lib/interfaces/services/anamnesis.int
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useCreateAnamnesis } from '@/lib/services/anamnesis.service';
 import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from '@inertiajs/react';
-import { Button, Card, Col, Grid, Row, Space, Tag, Typography, message } from 'antd';
+import { Button, Card, Col, Grid, Row, Space, Tag, Typography, UploadProps, message } from 'antd';
+import Dragger from 'antd/es/upload/Dragger';
+import { useState } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { formSchema } from './constants/formSchema';
 
@@ -71,6 +73,22 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
         control: methods.control,
     });
 
+    const [files, setFiles] = useState<any[]>([]);
+
+    const uploadProps: UploadProps = {
+        name: 'file',
+        multiple: true,
+        onChange(info) {
+            setFiles(info.fileList.map((file) => file.originFileObj));
+        },
+        beforeUpload: () => {
+            return false; // Prevent automatic upload
+        },
+        accept: '.pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx',
+        listType: 'text',
+        maxCount: 5,
+    };
+
     // Handle form submission
     const onSubmit = async (data: any) => {
         try {
@@ -95,6 +113,7 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                 physical_exam: data.physical_exam,
                 note: data.note,
                 anamnesis_details: data.anamnesisDetails || [],
+                files: files || [],
             };
 
             await createAnamnesisWithMutation.mutateAsync(payload);
@@ -292,6 +311,19 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                                     >
                                         Tambah Data
                                     </Button>
+
+                                    <div className="mt-3 mb-4 flex items-center justify-between">
+                                        <Title level={3} className="mb-0">
+                                            Dokumen Pendukung Anamnesis
+                                        </Title>
+                                    </div>
+
+                                    <Dragger {...uploadProps}>
+                                        <p className="ant-upload-drag-icon">
+                                            <FileOutlined />
+                                        </p>
+                                        <p className="ant-upload-text">Klik atau Drag file disini untuk upload</p>
+                                    </Dragger>
                                 </Card>
 
                                 <Card className="shadow-md">

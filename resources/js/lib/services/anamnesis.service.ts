@@ -53,6 +53,13 @@ const useCreateAnamnesis = () => {
                 });
             }
 
+            // Add files
+            if (payload.files) {
+                payload.files.forEach((file) => {
+                    formData.append('files[]', file);
+                });
+            }
+
             return axios
                 .post(`${API_BASE_URL}/api/v1/anamnesis`, formData, {
                     headers: {

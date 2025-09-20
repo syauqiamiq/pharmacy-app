@@ -6,6 +6,7 @@ import { getPrescriptionStatusColor, getPrescriptionStatusText } from '@/lib/fun
 import { getVisitStatusColor, getVisitStatusText } from '@/lib/functions/visit-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
+import { useDownloadFile } from '@/lib/services/file.service';
 import { useDeletePrescription, useGetAllPrescriptionByAnamnesisId, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
 import { ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
@@ -54,6 +55,7 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
 
     const updatePrescription = useUpdatePrescription();
     const deletePrescription = useDeletePrescription();
+    const downloadFile = useDownloadFile();
 
     return (
         <>
@@ -192,6 +194,30 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                         <h4 className="text-lg font-normal">
                                             {v.value} {v.unit}
                                         </h4>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+
+                        <div className="mt-3 mb-4 flex items-center justify-between">
+                            <Title level={3} className="mb-0">
+                                Dokumen Pendukung Anamnesis
+                            </Title>
+                        </div>
+
+                        <div className="mb-3 grid grid-cols-1 gap-4">
+                            {data?.data?.anamnesis?.anamnesis_attachments?.map((v, i) => {
+                                return (
+                                    <Card key={i} className="shadow-sm">
+                                        <div className="flex w-full flex-row items-center justify-between">
+                                            <h3 className="text-xl font-bold">{v.document_name}</h3>
+                                            <EyeOutlined
+                                                className="text-xl !text-blue-500"
+                                                onClick={async () => {
+                                                    await downloadFile.mutateAsync({ url: v.url, filename: v.document_name });
+                                                }}
+                                            />
+                                        </div>
                                     </Card>
                                 );
                             })}
