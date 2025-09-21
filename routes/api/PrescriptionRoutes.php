@@ -11,6 +11,10 @@ Route::get('/prescription/anamnesis/{anamnesisId}', [PrescriptionController::cla
 ->middleware([
     'check-roles:Doctor',
 ]);
+Route::get('/prescription/{prescriptionId}/logs', [PrescriptionController::class, 'getPrescriptionLogByPrescriptionId'])->name('api.prescription.getPrescriptionLogByPrescriptionId')
+->middleware([
+    'check-roles:Doctor,Pharmacist,Admin',
+]);
 
 Route::apiResource('prescription', PrescriptionController::class)
 ->middlewareFor(['index'], [

@@ -16,6 +16,14 @@ export interface ICreatePrescriptionPayload {
         | null;
 }
 
+export interface IPrescriptionLogResponse {
+    id: string;
+    prescription_id: string;
+    log_description: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface IUpdatePrescriptionPayload {
     prescription_id: string;
     pharmacist_id?: string;
@@ -49,6 +57,7 @@ export interface IPrescriptionResponse {
     status: string;
     prescription_details?: IPrescriptionDetail[];
     prescription_invoice?: IPrescriptionInvoiceResponse;
+    prescription_logs?: IPrescriptionLogResponse[];
 }
 export interface IPrescriptionDetail {
     id: string;

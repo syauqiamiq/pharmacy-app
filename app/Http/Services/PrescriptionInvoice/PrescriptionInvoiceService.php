@@ -4,6 +4,7 @@ namespace App\Http\Services\PrescriptionInvoice;
 
 use App\Constants\PrescriptionInvoiceStatusConstant;
 use App\Models\PrescriptionInvoice;
+use App\Models\PrescriptionLog;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -98,6 +99,7 @@ class PrescriptionInvoiceService
                 }
 
                 $updateData = [];
+                $originalStatus = $prescriptionInvoice->status;
 
                 if (isset($data['status'])) {
                     $updateData['status'] = $data['status'];
@@ -108,6 +110,21 @@ class PrescriptionInvoiceService
                 }
 
                 $prescriptionInvoice->update($updateData);
+
+                // Log prescription invoice update
+                if (isset($data['status']) && $data['status'] !== $originalStatus) {
+                    PrescriptionLog::create([
+                        'prescription_id' => $prescriptionInvoice->prescription_id,
+                        'log_description' => "Invoice status changed from {$originalStatus} to {$data['status']} for amount Rp " . number_format($prescriptionInvoice->total_amount, 2)
+                    ]);
+                    
+                    if ($data['status'] === PrescriptionInvoiceStatusConstant::PAID) {
+                        PrescriptionLog::create([
+                            'prescription_id' => $prescriptionInvoice->prescription_id,
+                            'log_description' => "Payment completed for invoice amount Rp " . number_format($prescriptionInvoice->total_amount, 2) . " at " . now()->format('Y-m-d H:i:s')
+                        ]);
+                    }
+                }
 
                 return $prescriptionInvoice->load([
                     'prescription',
@@ -137,6 +154,12 @@ class PrescriptionInvoiceService
                 if (!$prescriptionInvoice) {
                     throw new BadRequestException('Prescription invoice not found');
                 }
+
+                // Log prescription invoice deletion before deleting
+                PrescriptionLog::create([
+                    'prescription_id' => $prescriptionInvoice->prescription_id,
+                    'log_description' => "Invoice deleted with amount Rp " . number_format($prescriptionInvoice->total_amount, 2) . " (Status: {$prescriptionInvoice->status})"
+                ]);
 
                 $prescriptionInvoice->delete();
 

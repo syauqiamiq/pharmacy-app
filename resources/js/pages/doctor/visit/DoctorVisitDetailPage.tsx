@@ -271,6 +271,7 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                         },
                                         {
                                             title: 'Aksi',
+                                            fixed: 'right',
                                             render: (record) => {
                                                 return (
                                                     <Space size="middle">

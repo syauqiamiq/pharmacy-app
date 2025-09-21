@@ -38,6 +38,7 @@ class PrescriptionResource extends JsonResource
             'anamnesis' => new AnamnesisResource($this->whenLoaded('anamnesis')),
             'prescription_details' => PrescriptionDetailResource::collection($this->whenLoaded('prescriptionDetails')),
             'prescription_invoice' => new PrescriptionInvoiceResource($this->whenLoaded('prescriptionInvoice')),
+            'prescription_logs' => PrescriptionLogResource::collection($this->whenLoaded('prescriptionLogs')),
         ];
     }
 }

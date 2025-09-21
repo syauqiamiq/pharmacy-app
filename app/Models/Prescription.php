@@ -51,7 +51,7 @@ class Prescription extends Model
 
     public function prescriptionLogs()
     {
-        return $this->hasMany(PrescriptionLog::class);
+        return $this->hasMany(PrescriptionLog::class)->orderBy('created_at', 'DESC');
     }
 
     public function prescriptionInvoice()

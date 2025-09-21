@@ -11,6 +11,7 @@ use App\Models\Prescription;
 use App\Models\PrescriptionDetail;
 use App\Models\PrescriptionInvoice;
 use App\Models\PrescriptionInvoiceDetail;
+use App\Models\PrescriptionLog;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use \Illuminate\Support\Str;
@@ -82,6 +83,12 @@ class PrescriptionService
                         PrescriptionDetail::insert($prescriptionDetails);
                     }
                 }
+
+                // Log prescription creation
+                PrescriptionLog::create([
+                    'prescription_id' => $prescription->id,
+                    'log_description' => "Prescription created by {$user->name} for patient {$prescription->patient_name} with status {$prescription->status}"
+                ]);
 
                 return $prescription->load([
                     'doctor',
@@ -161,7 +168,24 @@ class PrescriptionService
                     $this->validateStatusUpdate($prescription, $data['status'], $doctor, $pharmacist, $data);
                 }
 
+                $originalStatus = $prescription->status;
                 $prescription->update($data);
+
+                // Log prescription update
+                $updatedBy = $user->name ?? 'Unknown User';
+                $userRole = $doctor ? 'Doctor' : ($pharmacist ? 'Pharmacist' : 'User');
+                
+                if (isset($data['status']) && $data['status'] !== $originalStatus) {
+                    PrescriptionLog::create([
+                        'prescription_id' => $prescription->id,
+                        'log_description' => "Status changed from {$originalStatus} to {$data['status']} by {$userRole} {$updatedBy}"
+                    ]);
+                } else {
+                    PrescriptionLog::create([
+                        'prescription_id' => $prescription->id,
+                        'log_description' => "Prescription updated by {$userRole} {$updatedBy}"
+                    ]);
+                }
 
                 if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
                     $prescription->prescriptionDetails()->delete();
@@ -187,6 +211,12 @@ class PrescriptionService
 
                     if (!empty($prescriptionDetails)) {
                         PrescriptionDetail::insert($prescriptionDetails);
+                        
+                        // Log prescription details update
+                        PrescriptionLog::create([
+                            'prescription_id' => $prescription->id,
+                            'log_description' => "Prescription details updated with " . count($prescriptionDetails) . " medicine(s) by {$userRole} {$updatedBy}"
+                        ]);
                     }
                 }
 
@@ -245,6 +275,12 @@ class PrescriptionService
                     if (!empty($invoiceDetails)) {
                         PrescriptionInvoiceDetail::insert($invoiceDetails);
                     }
+
+                    // Log prescription invoice creation
+                    PrescriptionLog::create([
+                        'prescription_id' => $prescription->id,
+                        'log_description' => "Prescription invoice created with total amount Rp " . number_format($totalAmount, 2) . " by Pharmacist {$updatedBy}"
+                    ]);
                 }
 
                 return $prescription;
@@ -389,6 +425,12 @@ class PrescriptionService
                 if (!$prescription) {
                     throw new BadRequestException('Prescription not found or you do not have access to this prescription');
                 }
+
+                // Log prescription deletion before deleting
+                PrescriptionLog::create([
+                    'prescription_id' => $prescription->id,
+                    'log_description' => "Prescription deleted by {$user->name} for patient {$prescription->patient_name}"
+                ]);
 
                 $prescription->delete();
 
@@ -535,6 +577,26 @@ class PrescriptionService
                 ->paginate($limit);
 
             return $prescriptionsData;
+        } catch (Exception $err) {
+            throw $err;
+        }
+    }
+
+    public function getPrescriptionLogByPrescriptionId($prescriptionId)
+    {
+        try {
+
+            // Check if prescription exists
+            $prescription = Prescription::find($prescriptionId);
+            if (!$prescription) {
+                throw new BadRequestException('Prescription not found');
+            }
+
+            $prescriptionLogs = PrescriptionLog::where('prescription_id', $prescriptionId)
+                ->orderBy('created_at', 'DESC')
+                ->get();
+
+            return $prescriptionLogs;
         } catch (Exception $err) {
             throw $err;
         }

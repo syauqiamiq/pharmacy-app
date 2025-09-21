@@ -112,7 +112,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                                                     setValue(`prescriptionDetails.${index}.medicine_id`, selectedMedicine.id || '');
                                                 }
                                             }}
-                                            value={{
+                                            defaultValue={{
                                                 label: field.medicine_name,
                                                 value: field.medicine_id,
                                             }}

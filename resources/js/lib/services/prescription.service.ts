@@ -4,7 +4,12 @@ import { IPaginateRequest } from '../components/molecules/table/interfaces';
 import { API_BASE_URL } from '../constants/api';
 import { generateUrlParams } from '../functions/param-helper.function';
 import { IApiResponse } from '../interfaces/api.interface';
-import { ICreatePrescriptionPayload, IPrescriptionResponse, IUpdatePrescriptionPayload } from '../interfaces/services/prescription.interface';
+import {
+    ICreatePrescriptionPayload,
+    IPrescriptionLogResponse,
+    IPrescriptionResponse,
+    IUpdatePrescriptionPayload,
+} from '../interfaces/services/prescription.interface';
 
 // Query Keys
 export const QKEY_PRESCRIPTION = 'QKEY_PRESCRIPTION';
@@ -14,6 +19,13 @@ const useGetAllPrescriptionByAnamnesisId = (anamnesisId: string, paginateRequest
         queryKey: [QKEY_PRESCRIPTION, { ...paginateRequest }],
         queryFn: async (): Promise<IApiResponse<IPrescriptionResponse[]>> =>
             axios.get(`${API_BASE_URL}/api/v1/prescription/anamnesis/${anamnesisId}?${generateUrlParams(paginateRequest)}`).then((res) => res.data),
+    });
+
+const useGetAllPrescriptionLogByPrescriptionId = (prescriptionId: string) =>
+    useQuery({
+        queryKey: [QKEY_PRESCRIPTION, prescriptionId],
+        queryFn: async (): Promise<IApiResponse<IPrescriptionLogResponse[]>> =>
+            axios.get(`${API_BASE_URL}/api/v1/prescription/${prescriptionId}/logs`).then((res) => res.data),
     });
 
 const useGetPrescriptionById = (prescriptionId: string) =>
@@ -78,6 +90,7 @@ export {
     useDeletePrescription,
     useGetAllPrescription,
     useGetAllPrescriptionByAnamnesisId,
+    useGetAllPrescriptionLogByPrescriptionId,
     useGetPrescriptionById,
     useUpdatePrescription,
 };

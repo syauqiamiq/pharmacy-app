@@ -141,8 +141,8 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
                                                 }
                                             }}
                                             defaultValue={{
-                                                label: field.medicine_name || 'Pilih Obat',
-                                                value: field.medicine_id || '',
+                                                label: field.medicine_name,
+                                                value: field.medicine_id,
                                             }}
                                             options={
                                                 medicines?.data.map((medicine) => ({

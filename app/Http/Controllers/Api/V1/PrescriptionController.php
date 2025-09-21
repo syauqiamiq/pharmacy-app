@@ -7,6 +7,7 @@ use App\Http\Requests\Prescription\StorePrescriptionRequest;
 use App\Http\Requests\Prescription\UpdatePrescriptionRequest;
 use App\Http\Requests\Prescription\GetPrescriptionsRequest;
 use App\Http\Resources\Prescription\PrescriptionResource;
+use App\Http\Resources\Prescription\PrescriptionLogResource;
 use App\Http\Services\Prescription\PrescriptionService;
 use App\Traits\ApiFormatter;
 use Exception;
@@ -122,6 +123,22 @@ class PrescriptionController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+
+    public function getPrescriptionLogByPrescriptionId($prescriptionId)
+    {
+        try {
+            $result = $this->prescriptionService->getPrescriptionLogByPrescriptionId(
+                $prescriptionId,
+            );
+
+            $formattedDatas = PrescriptionLogResource::collection($result);
+
+            return $this->successResponse($formattedDatas, "Prescription logs retrieved successfully", Response::HTTP_OK);
         } catch (Exception $error) {
             return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }

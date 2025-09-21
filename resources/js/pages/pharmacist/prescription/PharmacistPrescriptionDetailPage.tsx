@@ -1,5 +1,7 @@
+import GeneralLogModal from '@/lib/components/atoms/log/GeneralLogModal';
 import { getPrescriptionStatusColor, getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
+import { IGeneralLogResponse } from '@/lib/interfaces/services/log.interface';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { Button, Card, Skeleton, Space, Tag } from 'antd';
@@ -27,6 +29,12 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
         setDialogState: setInvoicePrescriptionDialogState,
         data: invoicePrescriptionDialogData,
     } = useDialog();
+    const {
+        handleClose: logPrescriptionHandleClose,
+        open: logPrescriptionOpen,
+        setDialogState: setLogPrescriptionDialogState,
+        data: logPrescriptionDialogData,
+    } = useDialog();
 
     return (
         <>
@@ -38,6 +46,18 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                     {isLoading === false && prescriptionData && (
                         <Space direction="vertical" size="middle" className="w-full">
                             <div className="flex w-full gap-3 lg:justify-end">
+                                <Button
+                                    type="dashed"
+                                    className="w-full lg:w-auto"
+                                    onClick={async () =>
+                                        setLogPrescriptionDialogState({
+                                            open: true,
+                                            data: prescriptionData.data.prescription_logs,
+                                        })
+                                    }
+                                >
+                                    Log
+                                </Button>
                                 {['VALIDATED', 'DISPENSING', 'DISPENSED', 'DONE'].includes(prescriptionData?.data?.status) && (
                                     <Button
                                         type="dashed"
@@ -212,6 +232,16 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                         open={invoicePrescriptionOpen}
                         onCancel={invoicePrescriptionHandleClose}
                         data={invoicePrescriptionDialogData}
+                    />
+                </div>
+            )}
+            {logPrescriptionOpen && (
+                <div>
+                    <GeneralLogModal
+                        title="Log Resep Obat"
+                        open={logPrescriptionOpen}
+                        onCancel={logPrescriptionHandleClose}
+                        data={logPrescriptionDialogData as IGeneralLogResponse[]}
                     />
                 </div>
             )}
