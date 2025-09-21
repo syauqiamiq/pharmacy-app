@@ -9,6 +9,7 @@ use App\Http\Requests\Patient\UpdatePatientRequest;
 use App\Http\Resources\Patient\PatientResource;
 use App\Http\Services\Patient\PatientService;
 use App\Traits\ApiFormatter;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
@@ -46,8 +47,8 @@ class PatientController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -61,8 +62,8 @@ class PatientController extends Controller
             $formattedData = new PatientResource($result);
 
             return $this->successResponse($formattedData, "Patient created successfully", Response::HTTP_CREATED);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -75,8 +76,8 @@ class PatientController extends Controller
             $formattedData = new PatientResource($result);
 
             return $this->successResponse($formattedData, "Patient retrieved successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -90,8 +91,8 @@ class PatientController extends Controller
             $formattedData = new PatientResource($result);
 
             return $this->successResponse($formattedData, "Patient updated successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -102,8 +103,8 @@ class PatientController extends Controller
             $this->patientService->deletePatient($id);
 
             return $this->successResponse(null, "Patient deleted successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

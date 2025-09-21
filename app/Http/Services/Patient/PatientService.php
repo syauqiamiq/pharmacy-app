@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class PatientService
 {
-    public function getAllPatients($limit, $search, $orderBy, $sort, $fromDate, $toDate)
+    public function getAllPatients($limit, $search, $orderBy, $sort)
     {
         try {
             $limit = $limit ? $limit : 25;
@@ -17,13 +17,7 @@ class PatientService
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
 
-            $patientsData = Patient::when($fromDate, function ($query) use ($fromDate) {
-                $query->whereDate('created_at', '>=', $fromDate);
-            })
-                ->when($toDate, function ($query) use ($toDate) {
-                    $query->whereDate('created_at', '<=', $toDate);
-                })
-                ->when($search, function ($query) use ($search) {
+            $patientsData = Patient::when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
                         $subQuery->where('name', 'LIKE', "%" . $search . "%")
                             ->orWhere('medic_record_number', 'LIKE', "%" . $search . "%");

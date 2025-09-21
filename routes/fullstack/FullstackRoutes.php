@@ -29,3 +29,9 @@ Route::group([
     'prefix' => null,
     "middleware" => ['auth', 'check-roles:Pharmacist']
 ], base_path('routes/fullstack/PharmacistRoutes.php'));
+
+Route::group([
+    'name' => "AdminRoutes",
+    'prefix' => null,
+    "middleware" => ['auth', 'check-roles:Admin']
+], base_path('routes/fullstack/AdminRoutes.php'));
