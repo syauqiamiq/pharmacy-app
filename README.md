@@ -83,18 +83,38 @@ php artisan key:generate
 php artisan migrate --seed
 ```
 
-### 4. Storage Setup
+### 4. Database Setup
+
+```bash
+# Buka file .env
+# isikan variable dibawah sesuai database MySQL anda
+
+DB_HOST=mysql
+DB_PORT=
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+
+```
+
+Lalu jalankan perintah dibawah ini
+
+```bash
+# Setup database table
+php artisan migrate --seed
+```
+
+### 5. Storage Setup
 
 ```bash
 # Create storage link
 php artisan storage:link
 
-# Clear cache
-php artisan cache:clear
-php artisan config:clear
+# Clear Optimize
+php artisan optimize:clear
 ```
 
-### 5. Run Development Server
+### 6. Run Development Server
 
 ```bash
 composer run dev
