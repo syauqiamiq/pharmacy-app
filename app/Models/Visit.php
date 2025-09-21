@@ -11,6 +11,10 @@ class Visit extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    protected $casts = [    
+        'visit_date' => 'datetime',
+    ];
+
     protected $fillable = [
         'patient_id',
         'doctor_id',

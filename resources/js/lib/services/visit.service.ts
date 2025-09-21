@@ -4,15 +4,37 @@ import { IPaginateRequest } from '../components/molecules/table/interfaces';
 import { API_BASE_URL } from '../constants/api';
 import { generateUrlParams } from '../functions/param-helper.function';
 import { IApiResponse } from '../interfaces/api.interface';
-import { IUpdateVisitPayload, IVisitResponse } from '../interfaces/services/visit.interface';
+import { ICreateVisitPayload, IUpdateVisitPayload, IVisitResponse } from '../interfaces/services/visit.interface';
 
 const QKEY_MY_VISIT = 'QKEY_MY_VISIT';
+
 const useGetAllMyVisit = (paginateRequest: IPaginateRequest) =>
     useQuery({
         queryKey: [QKEY_MY_VISIT, { ...paginateRequest }],
         queryFn: async (): Promise<IApiResponse<IVisitResponse[]>> =>
             axios.get(`${API_BASE_URL}/api/v1/visit/my?${generateUrlParams(paginateRequest)}`).then((res) => res.data),
     });
+
+const useGetAllVisit = (paginateRequest: IPaginateRequest) =>
+    useQuery({
+        queryKey: [QKEY_VISIT, { ...paginateRequest }],
+        queryFn: async (): Promise<IApiResponse<IVisitResponse[]>> =>
+            axios.get(`${API_BASE_URL}/api/v1/visit?${generateUrlParams(paginateRequest)}`).then((res) => res.data),
+    });
+
+const useCreateVisit = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (payload: ICreateVisitPayload): Promise<IApiResponse<IVisitResponse>> => {
+            return axios.post(`${API_BASE_URL}/api/v1/visit`, payload).then((res) => res.data);
+        },
+        onSuccess: () => {
+            // Invalidate related queries
+            queryClient.invalidateQueries({ queryKey: [QKEY_VISIT] });
+        },
+    });
+};
 
 const QKEY_VISIT = 'QKEY_VISIT';
 const useGetVisitByID = (visitId: string) =>
@@ -36,4 +58,18 @@ const useUpdateVisit = () => {
     });
 };
 
-export { useGetAllMyVisit, useGetVisitByID, useUpdateVisit };
+const useDeleteVisit = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ visit_id }: { visit_id: string }): Promise<IApiResponse<IVisitResponse>> => {
+            return axios.delete(`${API_BASE_URL}/api/v1/visit/${visit_id}`).then((res) => res.data);
+        },
+        onSuccess: () => {
+            // Invalidate related queries
+            queryClient.invalidateQueries({ queryKey: [QKEY_VISIT] });
+        },
+    });
+};
+
+export { useCreateVisit, useDeleteVisit, useGetAllMyVisit, useGetAllVisit, useGetVisitByID, useUpdateVisit };

@@ -25,7 +25,6 @@ class StoreVisitRequest extends FormRequest
             'patient_id' => 'string|required',
             'doctor_id' => 'string|required',
             'visit_date' => 'string|required',
-            'status' => 'string|required',
         ];
     }
 }

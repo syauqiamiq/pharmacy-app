@@ -15,5 +15,14 @@ export interface IVisitResponse {
 
 export interface IUpdateVisitPayload {
     visit_id: string;
+    visit_date?: string;
+    doctor_id?: string;
+    patient_id?: string;
     status?: string;
+}
+
+export interface ICreateVisitPayload {
+    visit_date: string;
+    doctor_id: string;
+    patient_id: string;
 }

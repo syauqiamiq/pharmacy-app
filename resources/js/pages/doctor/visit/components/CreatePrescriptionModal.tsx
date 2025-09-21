@@ -53,7 +53,7 @@ const CreatePrescriptionModal = ({ anamnesisId, open, onCancel, doctorName }: IC
         }
     }, []);
 
-    const { data: medicines } = useGetAllMedicine();
+    const { data: medicines, isLoading: isLoadingMedicines } = useGetAllMedicine();
 
     const createPrescription = useCreatePrescription();
 
@@ -89,6 +89,7 @@ const CreatePrescriptionModal = ({ anamnesisId, open, onCancel, doctorName }: IC
                                         <FormSelectInput
                                             label="Nama Obat"
                                             name={`prescriptionDetails.${index}.medicine_id`}
+                                            loading={isLoadingMedicines}
                                             placeholder="Nama Obat"
                                             onChange={(value) => {
                                                 const selectedMedicine = medicines?.data.find((medicine) => medicine.id === value);

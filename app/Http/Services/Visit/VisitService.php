@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -167,15 +168,21 @@ class VisitService
                     throw new BadRequestException('Visit not found');
                 }
 
+               
                 $updateData = [];
                 if (isset($data['patient_id'])) {
                     $updateData['patient_id'] = $data['patient_id'];
                 }
                 if (isset($data['visit_date'])) {
-                    $updateData['visit_date'] = $data['visit_date'];
+                    $updateData['visit_date'] = Carbon::parse($data['visit_date'])->toDateTimeString();
                 }
                 if (isset($data['status'])) {
                     $updateData['status'] = $data['status'];
+                }else{
+                    if ($visit->status != VisitStatusConstant::SCHEDULED) {
+                        throw new BadRequestException('Visit is not in SCHEDULED status');
+                    }
+                
                 }
 
                 $visit->update($updateData);
@@ -199,6 +206,10 @@ class VisitService
 
                 if (!$visit) {
                     throw new BadRequestException('Visit not found');
+                }
+
+                if ($visit->status != VisitStatusConstant::SCHEDULED) {
+                    throw new BadRequestException('Visit is not in SCHEDULED status');
                 }
 
                 $visit->delete();

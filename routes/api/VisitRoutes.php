@@ -8,12 +8,12 @@ Route::get('/visit/my', [VisitController::class, 'findMyVisit'])->name('api.visi
 ->middleware('check-roles:Doctor');
 
 Route::apiResource('visit', VisitController::class)
+->middlewareFor(['update'], [
+    'check-roles:Doctor',
+])
 ->middlewareFor(['index', 'show'], [
     'check-roles:Doctor,Pharmacist,Admin',
 ])
 ->middlewareFor(['store','update','destroy'], [
-    'check-roles:Admin',
-])
-->middlewareFor(['update' ], [
-    'check-roles:Doctor',
+    'check-roles:Admin,Doctor',
 ]);
