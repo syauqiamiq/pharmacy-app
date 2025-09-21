@@ -49,7 +49,9 @@ class MedicineService
                         'Authorization' => 'Bearer ' . Cache::get('delta_surya_api_token')
                     ]);
                     if ($priceResponse->status() !== 200) {
-                        throw new BadRequestException('Failed to fetch medicine prices');
+                        // Handle external API error response
+                        $errorMessage = $this->extractErrorMessage($priceResponse, 'Failed to fetch medicine prices');
+                        throw new BadRequestException($errorMessage);
                     }
                     $prices = $priceResponse->json()['prices'];
                     $lastPrice = null;
@@ -63,9 +65,11 @@ class MedicineService
                 Cache::put('delta_surya_medicines', $medicines, now()->addMinutes(5));
                 return $medicines;
             } else {
-                throw new BadRequestException('Failed to fetch medicines');
+                // Handle external API error response
+                $errorMessage = $this->extractErrorMessage($response, 'Failed to fetch medicines from external API');
+                throw new BadRequestException($errorMessage);
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $th) {
             throw $th;
         }
     }
@@ -132,7 +136,9 @@ class MedicineService
 
                 return $data;
             } else {
-                throw new BadRequestException('Failed to fetch medicine prices');
+                // Handle external API error response
+                $errorMessage = $this->extractErrorMessage($response, 'Failed to fetch medicine prices from external API');
+                throw new BadRequestException($errorMessage);
             }
         } catch (\Throwable $th) {
             throw $th;

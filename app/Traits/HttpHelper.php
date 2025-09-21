@@ -69,10 +69,45 @@ trait HttpHelper
             if ($response->status() === 200 && isset($response->json()['access_token'])) {
                 Cache::put('delta_surya_api_token', $response->json()['access_token'], 86400);
             } else {
-                throw new BadRequestException('Authentication failed');
+                // Handle external API error response
+                $errorMessage = $this->extractErrorMessage($response, 'Authentication failed');
+                throw new BadRequestException($errorMessage);
             }
         } catch (\Throwable $th) {
+            // If it's already a BadRequestException, re-throw it
+            if ($th instanceof BadRequestException) {
+                throw $th;
+            }
+            // Otherwise, wrap it
             throw new BadRequestException('Authentication failed: ' . $th->getMessage());
         }
+    }
+
+    /**
+     * Extract error message from external API response
+     * 
+     * @param \Illuminate\Http\Client\Response $response
+     * @param string $defaultMessage
+     * @return string
+     */
+    protected function extractErrorMessage($response, $defaultMessage = 'Request failed')
+    {
+        $responseData = $response->json();
+        
+        // Try to get error message in order of preference
+        if ($responseData && isset($responseData['error'])) {
+            return $responseData['error'];
+        }
+        
+        if ($responseData && isset($responseData['message'])) {
+            return $responseData['message'];
+        }
+        
+        if ($responseData && isset($responseData['detail'])) {
+            return $responseData['detail'];
+        }
+        
+        // If no specific error message, return default with status code
+        return $defaultMessage . ' (Status: ' . $response->status() . ')';
     }
 }
