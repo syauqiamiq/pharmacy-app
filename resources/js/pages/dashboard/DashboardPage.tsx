@@ -57,11 +57,6 @@ const Dashboard = () => {
     return (
         <DashboardLayout title="Dasbor Umum" breadcrumbItems={[{ title: 'Dashboard' }]}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                <Alert
-                    message="UI ini dibuat dengan AI dan Dummy Data untuk keperluan mengisi kekosongan UI - Muhammad Syauqi Amiq Amrullah"
-                    type="info"
-                    showIcon
-                />
                 {/* Welcome Section */}
                 <Alert
                     message={`Selamat datang kembali, ${props.auth.user.name}!`}

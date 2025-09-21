@@ -44,12 +44,6 @@ const LoginPage = () => {
     return (
         <>
             {contextHolder}
-            <Alert
-                banner
-                message="UI ini dibuat dengan AI untuk mempercepat proses development - Muhammad Syauqi Amiq Amrullah"
-                type="info"
-                showIcon
-            />
             {/* Main Container with Gradient Background */}
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-500 p-5">
                 <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 md:grid-cols-5">
