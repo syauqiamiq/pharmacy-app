@@ -107,15 +107,15 @@ Setelah menjalankan `php artisan migrate --seed`:
 
 ```
 Admin:
-Email: admin@example.com
+Email: admin@dev.com
 Password: admin123123
 
 Doctor:
-Email: doctor@example.com
+Email: doctor@dev.com
 Password: doctor123123
 
 Pharmacist:
-Email: pharmacist@example.com
+Email: pharmacist@dev.com
 Password: pharmacist123123
 ```
 
