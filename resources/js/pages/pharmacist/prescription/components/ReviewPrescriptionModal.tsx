@@ -92,6 +92,7 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
                     okText={'Simpan Perubahan'}
                     onOk={handleSubmit(onSubmit)}
                     confirmLoading={false}
+                    loading={isLoading}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
                         <div>

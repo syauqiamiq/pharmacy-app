@@ -76,7 +76,7 @@ const CreatePrescriptionModal = ({ anamnesisId, open, onCancel, doctorName }: IC
                     onCancel={onCancel}
                     okText={'Buat Resep'}
                     onOk={handleSubmit(onSubmit)}
-                    confirmLoading={false}
+                    confirmLoading={createPrescription.isPending}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
                         <FormInput name="doctor_name" label="Nama Dokter" disabled={doctorName !== undefined} />

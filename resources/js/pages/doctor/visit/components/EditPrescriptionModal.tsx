@@ -27,7 +27,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
         mode: 'onSubmit',
     });
 
-    const { data: prescriptionData, isLoading } = useGetPrescriptionById(data?.id);
+    const { data: prescriptionData, isLoading: isLoadingPrescription } = useGetPrescriptionById(data?.id);
 
     const { handleSubmit, setValue, control } = methods;
 
@@ -41,7 +41,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
     });
 
     useEffect(() => {
-        if (isLoading === false && prescriptionData) {
+        if (isLoadingPrescription === false && prescriptionData) {
             setValue('doctor_name', prescriptionData?.data?.doctor_name);
             setValue('doctor_note', prescriptionData?.data?.doctor_note);
             setValue(
@@ -58,7 +58,7 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                 }),
             );
         }
-    }, [isLoading, prescriptionData]);
+    }, [isLoadingPrescription, prescriptionData]);
 
     const { data: medicines } = useGetAllMedicine();
 
@@ -82,7 +82,8 @@ const EditPrescriptionModal = ({ data, open, onCancel }: IEditPrescriptionModalP
                     onCancel={onCancel}
                     okText={'Simpan Perubahan'}
                     onOk={handleSubmit(onSubmit)}
-                    confirmLoading={false}
+                    confirmLoading={updatePrescription.isPending}
+                    loading={isLoadingPrescription}
                 >
                     <Space direction="vertical" size="middle" className="w-full">
                         <div>
