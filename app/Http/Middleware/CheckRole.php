@@ -46,7 +46,7 @@ class CheckRole
             }
             
             // For web requests, you can redirect to a 403 page or back with error
-            abort(403, 'Access denied. You do not have the required role to access this resource.');
+         return redirect()->route('errors.403');
         }
 
         return $next($request);
