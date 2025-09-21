@@ -78,9 +78,6 @@ cp .env.example .env
 
 # Generate application key
 php artisan key:generate
-
-# Setup database
-php artisan migrate --seed
 ```
 
 ### 4. Database Setup
