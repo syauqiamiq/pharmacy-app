@@ -4,11 +4,12 @@ namespace App\Http\Services\Patient;
 
 use App\Models\Patient;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class PatientService
 {
-    public function getAllPatients($limit, $search, $orderBy, $sort)
+    public function getAllPatients($limit, $search, $orderBy, $sort, $fromDate, $toDate)
     {
         try {
             $limit = $limit ? $limit : 25;
@@ -16,11 +17,15 @@ class PatientService
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
 
-            $patientsData = Patient::withCount(['visits', 'prescriptions'])
+            $patientsData = Patient::when($fromDate, function ($query) use ($fromDate) {
+                $query->whereDate('created_at', '>=', $fromDate);
+            })
+                ->when($toDate, function ($query) use ($toDate) {
+                    $query->whereDate('created_at', '<=', $toDate);
+                })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            ->orWhere('name', 'LIKE', "%" . $search . "%")
+                        $subQuery->where('name', 'LIKE', "%" . $search . "%")
                             ->orWhere('medic_record_number', 'LIKE', "%" . $search . "%");
                     });
                 })
@@ -28,6 +33,22 @@ class PatientService
                 ->paginate($limit);
 
             return $patientsData;
+        } catch (Exception $err) {
+            throw $err;
+        }
+    }
+
+    public function findPatientById($patientId)
+    {
+        try {
+            $patient = Patient::where('id', $patientId)
+                ->first();
+
+            if (!$patient) {
+                throw new BadRequestException('Patient not found');
+            }
+
+            return $patient;
         } catch (Exception $err) {
             throw $err;
         }
@@ -51,59 +72,71 @@ class PatientService
 
     public function createPatient($data)
     {
-        try {
-            $patient = Patient::create([
-                'name' => $data['name'],
-                'medic_record_number' => $data['medic_record_number'],
-            ]);
+        return DB::transaction(function () use ($data) {
+            try {
+                $patient = Patient::create([
+                    'name' => $data['name'],
+                    'medic_record_number' => $data['medic_record_number'],
+                ]);
 
-            return $patient;
-        } catch (Exception $err) {
-            throw $err;
-        }
+                return $patient;
+            } catch (Exception $err) {
+                throw $err;
+            }
+        });
     }
 
-    public function updatePatient($id, $data)
+    public function updatePatient($patientId, $data)
     {
-        try {
-            $patient = Patient::find($id);
+        return DB::transaction(function () use ($patientId, $data) {
+            try {
+                $patient = Patient::lockForUpdate()
+                    ->where('id', $patientId)
+                    ->first();
 
-            if (!$patient) {
-                throw new BadRequestException('Patient not found');
+                if (!$patient) {
+                    throw new BadRequestException('Patient not found');
+                }
+
+                $updateData = [];
+                if (isset($data['name'])) {
+                    $updateData['name'] = $data['name'];
+                }
+                if (isset($data['medic_record_number'])) {
+                    $updateData['medic_record_number'] = $data['medic_record_number'];
+                }
+
+                $patient->update($updateData);
+
+                return $patient;
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            $patient->update([
-                'name' => $data['name'],
-                'medic_record_number' => $data['medic_record_number'],
-            ]);
-
-            return $patient->fresh();
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 
     public function deletePatient($id)
     {
-        try {
-            $patient = Patient::find($id);
+        return DB::transaction(function () use ($id) {
+            try {
+                $patient = Patient::lockForUpdate()
+                    ->withCount(['visits', 'prescriptions'])
+                    ->find($id);
 
-            if (!$patient) {
-                throw new BadRequestException('Patient not found');
+                if (!$patient) {
+                    throw new BadRequestException('Patient not found');
+                }
+
+                if ($patient->visits_count > 0 || $patient->prescriptions_count > 0) {
+                    throw new BadRequestException('Cannot delete patient with existing visits or prescriptions. Please remove all related data first.');
+                }
+
+                $patient->delete();
+
+                return true;
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            $hasVisits = $patient->visits()->exists();
-            $hasPrescriptions = $patient->prescriptions()->exists();
-
-            if ($hasVisits || $hasPrescriptions) {
-                throw new BadRequestException('Cannot delete patient with existing visits or prescriptions. Please remove all related data first.');
-            }
-
-            $patient->delete();
-
-            return true;
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 }

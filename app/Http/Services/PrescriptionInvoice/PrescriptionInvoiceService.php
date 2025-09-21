@@ -5,6 +5,7 @@ namespace App\Http\Services\PrescriptionInvoice;
 use App\Constants\PrescriptionInvoiceStatusConstant;
 use App\Models\PrescriptionInvoice;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class PrescriptionInvoiceService
@@ -17,7 +18,17 @@ class PrescriptionInvoiceService
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
 
-            $prescriptionInvoicesData = PrescriptionInvoice::with(['prescription.doctor.user', 'prescription.patient', 'prescriptionInvoiceDetails'])
+            $prescriptionInvoicesData = PrescriptionInvoice::with([
+                'prescription',
+                'prescription.doctor',
+                'prescription.doctor.user',
+                'prescription.patient',
+                'prescription.pharmacist',
+                'prescription.pharmacist.user',
+                'prescription.anamnesis',
+                'prescription.prescriptionDetails',
+                'prescriptionInvoiceDetails'
+            ])
                 ->when($fromDate, function ($query) use ($fromDate) {
                     $query->whereDate('created_at', '>=', $fromDate);
                 })
@@ -47,12 +58,20 @@ class PrescriptionInvoiceService
         }
     }
 
-
-
     public function findPrescriptionInvoiceById($prescriptionInvoiceId)
     {
         try {
-            $prescriptionInvoice = PrescriptionInvoice::with(['prescription.doctor.user', 'prescription.patient', 'prescriptionInvoiceDetails'])
+            $prescriptionInvoice = PrescriptionInvoice::with([
+                'prescription',
+                'prescription.doctor',
+                'prescription.doctor.user',
+                'prescription.patient',
+                'prescription.pharmacist',
+                'prescription.pharmacist.user',
+                'prescription.anamnesis',
+                'prescription.prescriptionDetails',
+                'prescriptionInvoiceDetails'
+            ])
                 ->where('id', $prescriptionInvoiceId)
                 ->first();
 
@@ -68,49 +87,63 @@ class PrescriptionInvoiceService
 
     public function updatePrescriptionInvoice($prescriptionInvoiceId, $data)
     {
-        try {
+        return DB::transaction(function () use ($prescriptionInvoiceId, $data) {
+            try {
+                $prescriptionInvoice = PrescriptionInvoice::lockForUpdate()
+                    ->where('id', $prescriptionInvoiceId)
+                    ->first();
 
-            $prescriptionInvoice = PrescriptionInvoice::where('id', $prescriptionInvoiceId)->first();
-
-            if (!$prescriptionInvoice) {
-                throw new BadRequestException('Prescription invoice not found');
-            }
-
-            $updateData = [];
-
-            if (isset($data['status'])) {
-                $updateData['status'] = $data['status'];
-
-
-                if ($data['status'] === PrescriptionInvoiceStatusConstant::PAID) {
-                    $updateData['paid_at'] = now();
+                if (!$prescriptionInvoice) {
+                    throw new BadRequestException('Prescription invoice not found');
                 }
+
+                $updateData = [];
+
+                if (isset($data['status'])) {
+                    $updateData['status'] = $data['status'];
+
+                    if ($data['status'] === PrescriptionInvoiceStatusConstant::PAID) {
+                        $updateData['paid_at'] = now();
+                    }
+                }
+
+                $prescriptionInvoice->update($updateData);
+
+                return $prescriptionInvoice->load([
+                    'prescription',
+                    'prescription.doctor',
+                    'prescription.doctor.user',
+                    'prescription.patient',
+                    'prescription.pharmacist',
+                    'prescription.pharmacist.user',
+                    'prescription.anamnesis',
+                    'prescription.prescriptionDetails',
+                    'prescriptionInvoiceDetails'
+                ]);
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            $prescriptionInvoice->update($updateData);
-
-            return $prescriptionInvoice->load(['prescription.doctor.user', 'prescription.patient', 'prescriptionInvoiceDetails']);
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 
     public function deletePrescriptionInvoice($prescriptionInvoiceId)
     {
-        try {
+        return DB::transaction(function () use ($prescriptionInvoiceId) {
+            try {
+                $prescriptionInvoice = PrescriptionInvoice::lockForUpdate()
+                    ->where('id', $prescriptionInvoiceId)
+                    ->first();
 
+                if (!$prescriptionInvoice) {
+                    throw new BadRequestException('Prescription invoice not found');
+                }
 
-            $prescriptionInvoice = PrescriptionInvoice::where('id', $prescriptionInvoiceId)->first();
+                $prescriptionInvoice->delete();
 
-            if (!$prescriptionInvoice) {
-                throw new BadRequestException('Prescription invoice not found');
+                return true;
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            $prescriptionInvoice->delete();
-
-            return true;
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 }

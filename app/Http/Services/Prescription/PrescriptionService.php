@@ -12,6 +12,7 @@ use App\Models\PrescriptionDetail;
 use App\Models\PrescriptionInvoice;
 use App\Models\PrescriptionInvoiceDetail;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use \Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
@@ -22,79 +23,96 @@ class PrescriptionService
     {
         $this->medicineService = $medicineService;
     }
+
     public function createPrescription($data, $userId)
     {
-        try {
-            $user = User::find($userId);
+        return DB::transaction(function () use ($data, $userId) {
+            try {
+                $user = User::with(['doctor'])->find($userId);
 
-            if (!$user) {
-                throw new BadRequestException('User not found');
-            }
-
-            $doctor = $user->doctor;
-
-            if (!$doctor) {
-                throw new BadRequestException('User not a doctor');
-            }
-
-            // Validate anamnesis exists and belongs to the doctor
-            $anamnesis = Anamnesis::where('id', $data['anamnesis_id'])
-                ->where('doctor_id', $doctor->id)
-                ->first();
-
-            if (!$anamnesis) {
-                throw new BadRequestException('Anamnesis not found or you do not have access to this anamnesis');
-            }
-
-            $prescriptionData = [
-                'anamnesis_id' => $data['anamnesis_id'],
-                'doctor_id' => $doctor->id,
-                'patient_id' => $anamnesis->visit->patient_id,
-                'patient_name' => $anamnesis->visit->patient->name ?? '',
-                'doctor_name' => $doctor->user->name ?? '',
-                'doctor_note' => $data['doctor_note'] ?? '',
-                'status' => PrescriptionStatusConstant::PENDING_VALIDATION,
-            ];
-
-            $prescription = Prescription::create($prescriptionData);
-
-            if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
-                $prescriptionDetails = [];
-                $now = now();
-
-                foreach ($data['prescription_details'] as $detail) {
-                    $prescriptionDetails[] = [
-                        "id" => Str::orderedUuid(),
-                        'prescription_id' => $prescription->id,
-                        'medicine_id' => $detail['medicine_id'] ?? null,
-                        'medicine_name' => $detail['medicine_name'] ?? '',
-                        'dosage' => $detail['dosage'] ?? '',
-                        'frequency' => $detail['frequency'] ?? '',
-                        'duration' => $detail['duration'] ?? '',
-                        'note' => $detail['note'] ?? '',
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
+                if (!$user) {
+                    throw new BadRequestException('User not found');
                 }
 
-                if (!empty($prescriptionDetails)) {
-                    PrescriptionDetail::insert($prescriptionDetails);
+                if (!$user->doctor) {
+                    throw new BadRequestException('User not a doctor');
                 }
-            }
 
-            return $prescription->load(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails']);
-        } catch (Exception $err) {
-            throw $err;
-        }
+                $anamnesis = Anamnesis::with(['visit', 'visit.patient'])
+                    ->where('id', $data['anamnesis_id'])
+                    ->where('doctor_id', $user->doctor->id)
+                    ->first();
+
+                if (!$anamnesis) {
+                    throw new BadRequestException('Anamnesis not found or you do not have access to this anamnesis');
+                }
+
+                $prescriptionData = [
+                    'anamnesis_id' => $data['anamnesis_id'],
+                    'doctor_id' => $user->doctor->id,
+                    'patient_id' => $anamnesis->visit->patient_id,
+                    'patient_name' => $anamnesis->visit->patient->name ?? '',
+                    'doctor_name' => $user->name ?? '',
+                    'doctor_note' => $data['doctor_note'] ?? '',
+                    'status' => PrescriptionStatusConstant::PENDING_VALIDATION,
+                ];
+
+                $prescription = Prescription::create($prescriptionData);
+
+                if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
+                    $prescriptionDetails = [];
+                    $now = now();
+
+                    foreach ($data['prescription_details'] as $detail) {
+                        $prescriptionDetails[] = [
+                            "id" => Str::orderedUuid(),
+                            'prescription_id' => $prescription->id,
+                            'medicine_id' => $detail['medicine_id'] ?? null,
+                            'medicine_name' => $detail['medicine_name'] ?? '',
+                            'dosage' => $detail['dosage'] ?? '',
+                            'frequency' => $detail['frequency'] ?? '',
+                            'duration' => $detail['duration'] ?? '',
+                            'note' => $detail['note'] ?? '',
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
+                    }
+
+                    if (!empty($prescriptionDetails)) {
+                        PrescriptionDetail::insert($prescriptionDetails);
+                    }
+                }
+
+                return $prescription->load([
+                    'doctor',
+                    'doctor.user',
+                    'patient',
+                    'anamnesis',
+                    'anamnesis.visit',
+                    'prescriptionDetails'
+                ]);
+            } catch (Exception $err) {
+                throw $err;
+            }
+        });
     }
-
 
     public function findPrescriptionById($prescriptionId, $userId)
     {
         try {
-            $prescription = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
-                ->where('id', $prescriptionId)
-                ->first();
+            $prescription = Prescription::with([
+                'pharmacist',
+                'pharmacist.user',
+                'doctor',
+                'doctor.user',
+                'patient',
+                'anamnesis',
+                'anamnesis.visit',
+                'prescriptionDetails',
+                'prescriptionLogs',
+                'prescriptionInvoice'
+            ])
+                ->find($prescriptionId);
 
             if (!$prescription) {
                 throw new BadRequestException('Prescription not found or you do not have access to this prescription');
@@ -108,119 +126,132 @@ class PrescriptionService
 
     public function updatePrescription($prescriptionId, $data, $userId)
     {
-        try {
-            $user = User::find($userId);
+        return DB::transaction(function () use ($prescriptionId, $data, $userId) {
+            try {
+                $user = User::with(['doctor', 'pharmacist'])->find($userId);
 
-            if (!$user) {
-                throw new BadRequestException('User not found');
-            }
+                if (!$user) {
+                    throw new BadRequestException('User not found');
+                }
 
-            $doctor = $user->doctor;
-            $pharmacist = $user->pharmacist;
+                $doctor = $user->doctor;
+                $pharmacist = $user->pharmacist;
 
-            if (!$doctor && !$pharmacist) {
-                throw new BadRequestException('User must be either a doctor or pharmacist');
-            }
+                if (!$doctor && !$pharmacist) {
+                    throw new BadRequestException('User must be either a doctor or pharmacist');
+                }
 
-            $prescription = Prescription::with(['prescriptionDetails', 'prescriptionInvoice'])
-                ->where('id', $prescriptionId)
-                ->first();
+                $prescription = Prescription::lockForUpdate()
+                    ->with(['prescriptionDetails', 'prescriptionInvoice'])
+                    ->find($prescriptionId);
 
-            if (!$prescription) {
-                throw new BadRequestException('Prescription not found');
-            }
+                if (!$prescription) {
+                    throw new BadRequestException('Prescription not found');
+                }
 
-            // VALIDASI 8: Cek status yang tidak bisa diupdate
-            if (in_array($prescription->status, [
-                PrescriptionStatusConstant::CANCELED,
-                PrescriptionStatusConstant::RETURN,
-                PrescriptionStatusConstant::EXPIRED
-            ])) {
-                throw new BadRequestException('Cannot update prescription with status: ' . $prescription->status);
-            }
+                if (in_array($prescription->status, [
+                    PrescriptionStatusConstant::CANCELED,
+                    PrescriptionStatusConstant::RETURN,
+                    PrescriptionStatusConstant::EXPIRED
+                ])) {
+                    throw new BadRequestException('Cannot update prescription with status: ' . $prescription->status);
+                }
 
-            // Validasi status update jika ada perubahan status
-            if (isset($data['status']) && $data['status'] !== $prescription->status) {
-                $this->validateStatusUpdate($prescription, $data['status'], $doctor, $pharmacist, $data);
-            }
+                if (isset($data['status']) && $data['status'] !== $prescription->status) {
+                    $this->validateStatusUpdate($prescription, $data['status'], $doctor, $pharmacist, $data);
+                }
 
-            $prescription->update($data);
+                $prescription->update($data);
 
-            if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
-                $prescription->prescriptionDetails()->delete();
+                if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
+                    $prescription->prescriptionDetails()->delete();
 
-                $prescriptionDetails = [];
-                $now = now();
+                    $prescriptionDetails = [];
+                    $now = now();
 
-                foreach ($data['prescription_details'] as $detail) {
-                    $prescriptionDetails[] = [
-                        "id" => Str::orderedUuid(),
+                    foreach ($data['prescription_details'] as $detail) {
+                        $prescriptionDetails[] = [
+                            "id" => Str::orderedUuid(),
+                            'prescription_id' => $prescription->id,
+                            'medicine_id' => $detail['medicine_id'] ?? null,
+                            'medicine_name' => $detail['medicine_name'] ?? '',
+                            'dosage' => $detail['dosage'] ?? '',
+                            'frequency' => $detail['frequency'] ?? '',
+                            'duration' => $detail['duration'] ?? '',
+                            'note' => $detail['note'] ?? '',
+                            'quantity' => $detail['quantity'] ?? 0,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
+                    }
+
+                    if (!empty($prescriptionDetails)) {
+                        PrescriptionDetail::insert($prescriptionDetails);
+                    }
+                }
+
+                $prescription = Prescription::with([
+                    'pharmacist',
+                    'pharmacist.user',
+                    'doctor',
+                    'doctor.user',
+                    'patient',
+                    'anamnesis',
+                    'anamnesis.visit',
+                    'prescriptionDetails',
+                    'prescriptionLogs',
+                    'prescriptionInvoice'
+                ])
+                    ->find($prescriptionId);
+
+                if (isset($data['status']) && $data['status'] === PrescriptionStatusConstant::VALIDATED) {
+                    if ($prescription->prescriptionInvoice) {
+                        throw new BadRequestException('Prescription invoice already exists for this prescription');
+                    }
+
+                    $invoiceId = Str::orderedUuid();
+                    $invoiceDetails = [];
+                    $totalAmount = 0;
+
+                    foreach ($prescription->prescriptionDetails as $detail) {
+                        $medicinePrices = $this->medicineService->getMedicinePriceById($detail->medicine_id);
+                        $lastPrice = $medicinePrices['current_price'] ?? 0;
+                        $totalPrice = $lastPrice * ($detail->quantity ?? 0);
+                        $totalAmount += $totalPrice;
+
+                        $invoiceDetails[] = [
+                            "id" => Str::orderedUuid(),
+                            'prescription_invoice_id' => $invoiceId,
+                            'description' => $detail->medicine_name,
+                            'quantity' => $detail->quantity ?? 0,
+                            'unit_price' => $lastPrice,
+                            'total_price' => $totalPrice,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+
+                    PrescriptionInvoice::insert([
+                        'id' => $invoiceId,
                         'prescription_id' => $prescription->id,
-                        'medicine_id' => $detail['medicine_id'] ?? null,
-                        'medicine_name' => $detail['medicine_name'] ?? '',
-                        'dosage' => $detail['dosage'] ?? '',
-                        'frequency' => $detail['frequency'] ?? '',
-                        'duration' => $detail['duration'] ?? '',
-                        'note' => $detail['note'] ?? '',
-                        'quantity' => $detail['quantity'] ?? 0,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                }
-
-                if (!empty($prescriptionDetails)) {
-                    PrescriptionDetail::insert($prescriptionDetails);
-                }
-            }
-
-            $prescription = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
-                ->where('id', $prescriptionId)
-                ->first();
-
-            // create prescription invoice if status VALIDATED
-            if (isset($data['status']) && $data['status'] === PrescriptionStatusConstant::VALIDATED) {
-
-                // Check if prescription invoice already exists
-                if ($prescription->prescriptionInvoice) {
-                    throw new BadRequestException('Prescription invoice already exists for this prescription');
-                }
-
-                $invoiceId = Str::orderedUuid();
-                // create prescription invoice detail
-                $invoiceDetails = [];
-                foreach ($prescription->prescriptionDetails as $detail) {
-                    $medicinePrices = $this->medicineService->getMedicinePriceById($detail->medicine_id);
-
-                    $lastPrice = $medicinePrices['current_price'] ?? 0;
-                    $invoiceDetails[] = [
-                        "id" => Str::orderedUuid(),
-                        'prescription_invoice_id' => $invoiceId,
-                        'description' => $detail->medicine_name,
-                        'quantity' => $detail->quantity ?? 0,
-                        'unit_price' => $lastPrice,
-                        'total_price' => $lastPrice * ($detail->quantity ?? 0),
+                        'status' => PrescriptionInvoiceStatusConstant::PENDING,
+                        'total_amount' => $totalAmount,
+                        'issued_at' => now(),
+                        'paid_at' => null,
                         'created_at' => now(),
                         'updated_at' => now(),
-                    ];
+                    ]);
+
+                    if (!empty($invoiceDetails)) {
+                        PrescriptionInvoiceDetail::insert($invoiceDetails);
+                    }
                 }
-                $invoice = PrescriptionInvoice::insert([
-                    'id' => $invoiceId,
-                    'prescription_id' => $prescription->id,
-                    'status' => PrescriptionInvoiceStatusConstant::PENDING,
-                    'total_amount' => array_sum(array_column($invoiceDetails, 'total_price')),
-                    'issued_at' => now(),
-                    'paid_at' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
 
-                ]);
-                PrescriptionInvoiceDetail::insert($invoiceDetails);
+                return $prescription;
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            return $prescription->load(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails']);
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 
     /**
@@ -338,33 +369,34 @@ class PrescriptionService
 
     public function deletePrescription($prescriptionId, $userId)
     {
-        try {
-            $user = User::find($userId);
+        return DB::transaction(function () use ($prescriptionId, $userId) {
+            try {
+                $user = User::with(['doctor'])->find($userId);
 
-            if (!$user) {
-                throw new BadRequestException('User not found');
+                if (!$user) {
+                    throw new BadRequestException('User not found');
+                }
+
+                if (!$user->doctor) {
+                    throw new BadRequestException('User not a doctor');
+                }
+
+                $prescription = Prescription::lockForUpdate()
+                    ->where('id', $prescriptionId)
+                    ->where('doctor_id', $user->doctor->id)
+                    ->first();
+
+                if (!$prescription) {
+                    throw new BadRequestException('Prescription not found or you do not have access to this prescription');
+                }
+
+                $prescription->delete();
+
+                return true;
+            } catch (Exception $err) {
+                throw $err;
             }
-
-            $doctor = $user->doctor;
-
-            if (!$doctor) {
-                throw new BadRequestException('User not a doctor');
-            }
-
-            $prescription = Prescription::where('id', $prescriptionId)
-                ->where('doctor_id', $doctor->id)
-                ->first();
-
-            if (!$prescription) {
-                throw new BadRequestException('Prescription not found or you do not have access to this prescription');
-            }
-
-            $prescription->delete();
-
-            return true;
-        } catch (Exception $err) {
-            throw $err;
-        }
+        });
     }
 
     public function getAllPrescriptions($limit, $search, $orderBy, $sort, $fromDate, $toDate)
@@ -375,7 +407,18 @@ class PrescriptionService
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
 
-            $prescriptionsData = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
+            $prescriptionsData = Prescription::with([
+                'doctor',
+                'doctor.user',
+                'patient',
+                'anamnesis',
+                'anamnesis.visit',
+                'prescriptionDetails',
+                'pharmacist',
+                'pharmacist.user',
+                'prescriptionLogs',
+                'prescriptionInvoice'
+            ])
                 ->where("status", "!=", PrescriptionStatusConstant::DRAFT)
                 ->when($fromDate, function ($query) use ($fromDate) {
                     $query->whereDate('created_at', '>=', $fromDate);
@@ -407,19 +450,30 @@ class PrescriptionService
             $search = $search ? $search : '';
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
-            $user = User::find($userId);
+
+            $user = User::with(['doctor'])->find($userId);
 
             if (!$user) {
                 throw new BadRequestException('User not found');
             }
-            $doctor = $user->doctor;
 
-            if (!$doctor) {
+            if (!$user->doctor) {
                 throw new BadRequestException('User not a doctor');
             }
 
-            $myPrescriptionsData = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
-                ->where('doctor_id', $doctor->id)
+            $myPrescriptionsData = Prescription::with([
+                'pharmacist',
+                'pharmacist.user',
+                'doctor',
+                'doctor.user',
+                'patient',
+                'anamnesis',
+                'anamnesis.visit',
+                'prescriptionDetails',
+                'prescriptionLogs',
+                'prescriptionInvoice'
+            ])
+                ->where('doctor_id', $user->doctor->id)
                 ->when($fromDate, function ($query) use ($fromDate) {
                     $query->whereDate('created_at', '>=', $fromDate);
                 })
@@ -450,7 +504,18 @@ class PrescriptionService
             $orderBy = $orderBy ? $orderBy : 'id';
             $sort = $sort ? $sort : 'ASC';
 
-            $prescriptionsData = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
+            $prescriptionsData = Prescription::with([
+                'pharmacist',
+                'pharmacist.user',
+                'doctor',
+                'doctor.user',
+                'patient',
+                'anamnesis',
+                'anamnesis.visit',
+                'prescriptionDetails',
+                'prescriptionLogs',
+                'prescriptionInvoice'
+            ])
                 ->where('anamnesis_id', $anamnesisId)
                 ->when($fromDate, function ($query) use ($fromDate) {
                     $query->whereDate('created_at', '>=', $fromDate);
