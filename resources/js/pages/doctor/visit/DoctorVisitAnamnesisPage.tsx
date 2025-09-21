@@ -17,25 +17,9 @@ import { formSchema } from './constants/formSchema';
 
 const { Title, Text } = Typography;
 
-/**
- * DoctorVisitAnamnesisPage Component
- *
- * This component provides a form for doctors to create anamnesis for patient visits.
- *
- * Usage:
- * <DoctorVisitAnamnesisPage visitId="uuid-of-visit" />
- *
- * Features:
- * - Form validation with Yup schema
- * - React Query mutation for API calls
- * - FormData submission for file upload compatibility
- * - Dynamic anamnesis details array
- * - Loading states and error handling
- * - Form reset after successful submission
- */
 
 interface IDoctorVisitAnamnesisPage {
-    visitId?: string; // Pass the visit ID from parent component or route params
+    visitId?: string; 
 }
 
 const defaultValues = {
@@ -89,12 +73,9 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
         maxCount: 5,
     };
 
-    // Handle form submission
+
     const onSubmit = async (data: any) => {
         try {
-            // For demo purposes, using a dummy visit ID
-            // In real implementation, this should come from props, URL params, or context
-            // Example: const visitId = useParams().visitId or props.visitId
             const visitId = props.visitId || 'dummy-visit-id-for-demo';
 
             if (!props.visitId) {
@@ -119,7 +100,7 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
             await createAnamnesisWithMutation.mutateAsync(payload);
 
             message.success('Anamnesis berhasil disimpan!');
-            reset(); // Reset form after successful submission
+            reset();
             router.get(`/doctor/visit/${visitId}/detail`);
         } catch (error: any) {
             console.error('Error creating anamnesis:', error);

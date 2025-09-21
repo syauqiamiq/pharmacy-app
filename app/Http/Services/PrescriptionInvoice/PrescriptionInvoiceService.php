@@ -3,11 +3,8 @@
 namespace App\Http\Services\PrescriptionInvoice;
 
 use App\Constants\PrescriptionInvoiceStatusConstant;
-use App\Models\User;
-use App\Models\Prescription;
 use App\Models\PrescriptionInvoice;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class PrescriptionInvoiceService
@@ -29,19 +26,13 @@ class PrescriptionInvoiceService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by invoice ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by prescription ID
                             ->orWhere('prescription_id', 'LIKE', "%" . $search . "%")
-                            // Search by status
                             ->orWhere('status', 'LIKE', "%" . $search . "%")
-                            // Search by total amount
                             ->orWhere('total_amount', 'LIKE', "%" . $search . "%")
-                            // Search by patient name through prescription
                             ->orWhereHas('prescription.patient', function ($patientQuery) use ($search) {
                                 $patientQuery->where('name', 'LIKE', "%" . $search . "%");
                             })
-                            // Search by doctor name through prescription
                             ->orWhereHas('prescription.doctor.user', function ($doctorQuery) use ($search) {
                                 $doctorQuery->where('name', 'LIKE', "%" . $search . "%");
                             });
@@ -85,13 +76,12 @@ class PrescriptionInvoiceService
                 throw new BadRequestException('Prescription invoice not found');
             }
 
-            // Update main prescription invoice data
             $updateData = [];
 
             if (isset($data['status'])) {
                 $updateData['status'] = $data['status'];
 
-                // Set paid_at when status is changed to PAID
+
                 if ($data['status'] === PrescriptionInvoiceStatusConstant::PAID) {
                     $updateData['paid_at'] = now();
                 }

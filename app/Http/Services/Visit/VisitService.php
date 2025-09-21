@@ -8,7 +8,6 @@ use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 
 
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -44,13 +43,10 @@ class VisitService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by visit ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by patient name
                             ->orWhereHas('patient', function ($patientQuery) use ($search) {
                                 $patientQuery->where('name', 'LIKE', "%" . $search . "%");
                             })
-                            // Search by medical record number
                             ->orWhereHas('patient', function ($patientQuery) use ($search) {
                                 $patientQuery->where('medic_record_number', 'LIKE', "%" . $search . "%");
                             });
@@ -82,17 +78,13 @@ class VisitService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by visit ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by doctor name
                             ->orWhereHas('doctor.user', function ($doctorQuery) use ($search) {
                                 $doctorQuery->where('name', 'LIKE', "%" . $search . "%");
                             })
-                            // Search by patient name
                             ->orWhereHas('patient', function ($patientQuery) use ($search) {
                                 $patientQuery->where('name', 'LIKE', "%" . $search . "%");
                             })
-                            // Search by medical record number
                             ->orWhereHas('patient', function ($patientQuery) use ($search) {
                                 $patientQuery->where('medic_record_number', 'LIKE', "%" . $search . "%");
                             });
@@ -170,7 +162,6 @@ class VisitService
                 throw new BadRequestException('Visit not found');
             }
 
-            // Update only allowed fields
             $updateData = [];
             if (isset($data['patient_id'])) {
                 $updateData['patient_id'] = $data['patient_id'];

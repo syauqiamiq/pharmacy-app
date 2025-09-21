@@ -8,11 +8,10 @@ use App\Http\Requests\Visit\UpdateVisitRequest;
 use App\Http\Resources\Visit\VisitResource;
 use App\Http\Services\Visit\VisitService;
 use App\Traits\ApiFormatter;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-
-use function Ramsey\Uuid\v1;
 
 class VisitController extends Controller
 {
@@ -56,8 +55,8 @@ class VisitController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -88,14 +87,12 @@ class VisitController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(StoreVisitRequest $request)
     {
         try {
@@ -105,14 +102,12 @@ class VisitController extends Controller
             $formattedData = new VisitResource($result);
 
             return $this->successResponse($formattedData, "Visit created successfully", Response::HTTP_CREATED);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         try {
@@ -121,14 +116,12 @@ class VisitController extends Controller
             $formattedData = new VisitResource($result);
 
             return $this->successResponse($formattedData, "Visit retrieved successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdateVisitRequest $request, string $id)
     {
         try {
@@ -138,22 +131,20 @@ class VisitController extends Controller
             $formattedData = new VisitResource($result);
 
             return $this->successResponse($formattedData, "Visit updated successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
         try {
             $this->visitService->deleteVisit($id);
 
             return $this->successResponse(null, "Visit deleted successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

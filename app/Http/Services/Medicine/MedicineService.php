@@ -2,14 +2,8 @@
 
 namespace App\Http\Services\Medicine;
 
-use App\Constants\VisitStatusConstant;
-use App\Models\Doctor;
-use App\Models\Patient;
-use App\Models\User;
-use App\Models\Visit;
 use App\Traits\HttpHelper;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
@@ -128,14 +122,14 @@ class MedicineService
 
             if ($response->status() === 200) {
                 $data = $response->json();
-                
+
                 // Add current price to the response
                 if (isset($data['prices']) && count($data['prices']) > 0) {
                     $data['current_price'] = $this->getCurrentPrice($data['prices']);
                 } else {
                     $data['current_price'] = null;
                 }
-                
+
                 return $data;
             } else {
                 throw new BadRequestException('Failed to fetch medicine prices');

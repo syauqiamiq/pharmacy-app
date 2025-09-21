@@ -10,7 +10,6 @@ use App\Http\Resources\Prescription\PrescriptionResource;
 use App\Http\Services\Prescription\PrescriptionService;
 use App\Traits\ApiFormatter;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,9 +24,7 @@ class PrescriptionController extends Controller
         $this->prescriptionService = $prescriptionService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(GetPrescriptionsRequest $request)
     {
         try {
@@ -55,14 +52,12 @@ class PrescriptionController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Display my prescriptions.
-     */
+
     public function findMyPrescriptions(GetPrescriptionsRequest $request)
     {
         try {
@@ -91,15 +86,14 @@ class PrescriptionController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
 
-        /**
-     * Display my prescriptions.
-     */
+
+
     public function findPrescriptionsByAnamnesisId(GetPrescriptionsRequest $request, $anamnesisId)
     {
         try {
@@ -128,14 +122,12 @@ class PrescriptionController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(StorePrescriptionRequest $request)
     {
         try {
@@ -145,14 +137,12 @@ class PrescriptionController extends Controller
             $formattedData = new PrescriptionResource($result);
 
             return $this->successResponse($formattedData, "Prescription created successfully", Response::HTTP_CREATED);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         try {
@@ -161,14 +151,12 @@ class PrescriptionController extends Controller
             $formattedData = new PrescriptionResource($result);
 
             return $this->successResponse($formattedData, "Prescription retrieved successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdatePrescriptionRequest $request, string $id)
     {
         try {
@@ -178,22 +166,20 @@ class PrescriptionController extends Controller
             $formattedData = new PrescriptionResource($result);
 
             return $this->successResponse($formattedData, "Prescription updated successfully", Response::HTTP_OK);
-        } catch (Exception $th) {
-          return $this->errorResponse($th->getMessage(), Response::HTTP_BAD_REQUEST);
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
         try {
             $this->prescriptionService->deletePrescription($id, Auth::user()->id);
 
             return $this->successResponse(null, "Prescription deleted successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

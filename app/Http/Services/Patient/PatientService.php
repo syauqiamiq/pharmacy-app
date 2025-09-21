@@ -92,7 +92,6 @@ class PatientService
                 throw new BadRequestException('Patient not found');
             }
 
-            // Check if patient has any visits or prescriptions
             $hasVisits = $patient->visits()->exists();
             $hasPrescriptions = $patient->prescriptions()->exists();
 

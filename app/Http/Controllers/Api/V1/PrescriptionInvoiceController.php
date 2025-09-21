@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PrescriptionInvoice\GetPrescriptionInvoicesRequest;
-use App\Http\Requests\PrescriptionInvoice\StorePrescriptionInvoiceRequest;
 use App\Http\Requests\PrescriptionInvoice\UpdatePrescriptionInvoiceRequest;
 use App\Http\Resources\PrescriptionInvoice\PrescriptionInvoiceResource;
 use App\Http\Services\PrescriptionInvoice\PrescriptionInvoiceService;
 use App\Traits\ApiFormatter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class PrescriptionInvoiceController extends Controller
@@ -24,9 +22,7 @@ class PrescriptionInvoiceController extends Controller
         $this->prescriptionInvoiceService = $prescriptionInvoiceService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(GetPrescriptionInvoicesRequest $request)
     {
         try {
@@ -56,15 +52,13 @@ class PrescriptionInvoiceController extends Controller
                 "per_page" =>  $result->perPage(),
                 "total" =>  $result->total(),
             ]);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         try {
@@ -73,14 +67,12 @@ class PrescriptionInvoiceController extends Controller
             $formattedData = new PrescriptionInvoiceResource($result);
 
             return $this->successResponse($formattedData, "Prescription invoice retrieved successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdatePrescriptionInvoiceRequest $request, string $id)
     {
         try {
@@ -90,22 +82,20 @@ class PrescriptionInvoiceController extends Controller
             $formattedData = new PrescriptionInvoiceResource($result);
 
             return $this->successResponse($formattedData, "Prescription invoice updated successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
         try {
             $this->prescriptionInvoiceService->deletePrescriptionInvoice($id);
 
             return $this->successResponse(null, "Prescription invoice deleted successfully", Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
+        } catch (Exception $error) {
+            return $this->errorResponse($error->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

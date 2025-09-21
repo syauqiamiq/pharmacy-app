@@ -11,9 +11,7 @@ use App\Models\Prescription;
 use App\Models\PrescriptionDetail;
 use App\Models\PrescriptionInvoice;
 use App\Models\PrescriptionInvoiceDetail;
-use App\Traits\HttpHelper;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use \Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
@@ -48,13 +46,6 @@ class PrescriptionService
                 throw new BadRequestException('Anamnesis not found or you do not have access to this anamnesis');
             }
 
-            // // Check if prescription already exists for this anamnesis
-            // $existingPrescription = Prescription::where('anamnesis_id', $data['anamnesis_id'])->first();
-            // if ($existingPrescription) {
-            //     throw new BadRequestException('Prescription already exists for this anamnesis');
-            // }
-
-            // Create prescription main data
             $prescriptionData = [
                 'anamnesis_id' => $data['anamnesis_id'],
                 'doctor_id' => $doctor->id,
@@ -67,7 +58,6 @@ class PrescriptionService
 
             $prescription = Prescription::create($prescriptionData);
 
-            // Create prescription details if provided
             if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
                 $prescriptionDetails = [];
                 $now = now();
@@ -102,8 +92,6 @@ class PrescriptionService
     public function findPrescriptionById($prescriptionId, $userId)
     {
         try {
-
-
             $prescription = Prescription::with(['doctor.user', 'patient', 'anamnesis.visit', 'prescriptionDetails'])
                 ->where('id', $prescriptionId)
                 ->first();
@@ -158,12 +146,9 @@ class PrescriptionService
 
             $prescription->update($data);
 
-            // Update prescription details if provided
             if (isset($data['prescription_details']) && is_array($data['prescription_details'])) {
-                // Delete existing details
                 $prescription->prescriptionDetails()->delete();
 
-                // Create new details using batch insert
                 $prescriptionDetails = [];
                 $now = now();
 
@@ -194,7 +179,7 @@ class PrescriptionService
 
             // create prescription invoice if status VALIDATED
             if (isset($data['status']) && $data['status'] === PrescriptionStatusConstant::VALIDATED) {
-                
+
                 // Check if prescription invoice already exists
                 if ($prescription->prescriptionInvoice) {
                     throw new BadRequestException('Prescription invoice already exists for this prescription');
@@ -251,7 +236,7 @@ class PrescriptionService
                 if (!$pharmacist) {
                     throw new BadRequestException('Only pharmacist can validate prescription');
                 }
-                
+
                 // Cek quantity semua prescription details harus > 0
                 foreach ($payload['prescription_details'] as $detail) {
                     if ($detail['quantity'] <= 0) {
@@ -265,7 +250,7 @@ class PrescriptionService
                 if (!$doctor) {
                     throw new BadRequestException('Only doctor can change prescription to draft');
                 }
-                
+
                 // Status harus ON_HOLD atau PENDING_VALIDATION
                 if (!in_array($currentStatus, [
                     PrescriptionStatusConstant::ON_HOLD,
@@ -280,7 +265,7 @@ class PrescriptionService
                 if (!$doctor) {
                     throw new BadRequestException('Only doctor can change prescription to pending validation');
                 }
-                
+
                 // Status harus DRAFT atau REJECTED
                 if (!in_array($currentStatus, [
                     PrescriptionStatusConstant::DRAFT,
@@ -295,7 +280,7 @@ class PrescriptionService
                 if (!$pharmacist) {
                     throw new BadRequestException('Only pharmacist can put prescription on hold');
                 }
-                
+
                 // Status harus PENDING_VALIDATION
                 if ($currentStatus !== PrescriptionStatusConstant::PENDING_VALIDATION) {
                     throw new BadRequestException('Can only change to ON_HOLD from PENDING_VALIDATION status');
@@ -307,7 +292,7 @@ class PrescriptionService
                 if (!$pharmacist) {
                     throw new BadRequestException('Only pharmacist can start dispensing');
                 }
-                
+
                 // Status harus VALIDATED
                 if ($currentStatus !== PrescriptionStatusConstant::VALIDATED) {
                     throw new BadRequestException('Can only change to DISPENSING from VALIDATED status');
@@ -319,7 +304,7 @@ class PrescriptionService
                 if (!$pharmacist) {
                     throw new BadRequestException('Only pharmacist can mark as dispensed');
                 }
-                
+
                 // Status harus DISPENSING
                 if ($currentStatus !== PrescriptionStatusConstant::DISPENSING) {
                     throw new BadRequestException('Can only change to DISPENSED from DISPENSING status');
@@ -331,15 +316,15 @@ class PrescriptionService
                 if (!$pharmacist) {
                     throw new BadRequestException('Only pharmacist can mark prescription as done');
                 }
-                
+
                 // Status harus DISPENSED
                 if ($currentStatus !== PrescriptionStatusConstant::DISPENSED) {
                     throw new BadRequestException('Can only change to DONE from DISPENSED status');
                 }
-                
+
                 // Pastikan ada prescription invoice yang berstatus PAID
                 $prescriptionInvoice = $prescription->prescriptionInvoice;
-                
+
                 if (!$prescriptionInvoice || $prescriptionInvoice->status !== PrescriptionInvoiceStatusConstant::PAID) {
                     throw new BadRequestException('Prescription invoice must be paid before marking as done');
                 }
@@ -400,13 +385,9 @@ class PrescriptionService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by prescription ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by doctor name
                             ->orWhere('doctor_name', 'LIKE', "%" . $search . "%")
-                            // Search by patient name
                             ->orWhere('patient_name', 'LIKE', "%" . $search . "%")
-                            // Search by status
                             ->orWhere('status', 'LIKE', "%" . $search . "%");
                     });
                 })
@@ -447,11 +428,8 @@ class PrescriptionService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by prescription ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by patient name
                             ->orWhere('patient_name', 'LIKE', "%" . $search . "%")
-                            // Search by status
                             ->orWhere('status', 'LIKE', "%" . $search . "%");
                     });
                 })
@@ -482,13 +460,9 @@ class PrescriptionService
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($subQuery) use ($search) {
-                        // Search by prescription ID
                         $subQuery->where("id", "LIKE", "%" . $search . "%")
-                            // Search by doctor name
                             ->orWhere('doctor_name', 'LIKE', "%" . $search . "%")
-                            // Search by patient name
                             ->orWhere('patient_name', 'LIKE', "%" . $search . "%")
-                            // Search by status
                             ->orWhere('status', 'LIKE', "%" . $search . "%");
                     });
                 })

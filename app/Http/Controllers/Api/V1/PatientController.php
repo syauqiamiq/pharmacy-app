@@ -9,7 +9,6 @@ use App\Http\Requests\Patient\UpdatePatientRequest;
 use App\Http\Resources\Patient\PatientResource;
 use App\Http\Services\Patient\PatientService;
 use App\Traits\ApiFormatter;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
@@ -23,9 +22,7 @@ class PatientController extends Controller
         $this->patientService = $patientService;
     }
 
-    /**
-     * Display a listing of patients.
-     */
+
     public function index(GetPatientsRequest $request)
     {
         try {
@@ -54,9 +51,7 @@ class PatientController extends Controller
         }
     }
 
-    /**
-     * Store a newly created patient.
-     */
+
     public function store(StorePatientRequest $request)
     {
         try {
@@ -71,9 +66,7 @@ class PatientController extends Controller
         }
     }
 
-    /**
-     * Display the specified patient.
-     */
+
     public function show(string $id)
     {
         try {
@@ -87,9 +80,7 @@ class PatientController extends Controller
         }
     }
 
-    /**
-     * Update the specified patient.
-     */
+
     public function update(UpdatePatientRequest $request, string $id)
     {
         try {
@@ -104,9 +95,7 @@ class PatientController extends Controller
         }
     }
 
-    /**
-     * Remove the specified patient.
-     */
+
     public function destroy(string $id)
     {
         try {
