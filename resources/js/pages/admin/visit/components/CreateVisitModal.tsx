@@ -1,11 +1,12 @@
 import { DatePicker } from '@/lib/components/atoms/date-picker';
 import { FormSelectInput } from '@/lib/components/atoms/input';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
 import { useGetAllDoctor } from '@/lib/services/doctor.service';
 import { useGetAllPatient } from '@/lib/services/patient.service';
 import { useCreateVisit } from '@/lib/services/visit.service';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Modal, Space, Spin } from 'antd';
+import { App, Modal, Space, Spin } from 'antd';
 import { FormProvider, useForm } from 'react-hook-form';
 import { formSchema } from '../constants/formSchema';
 
@@ -36,12 +37,21 @@ const CreateVisitModal = ({ open, onCancel }: ICreateVisitModalProps) => {
 
     const createVisit = useCreateVisit();
 
+    const { message } = App.useApp();
     const onSubmit = async (data: any) => {
-        await createVisit.mutateAsync({
-            visit_date: data.visit_date,
-            doctor_id: data.doctor_id,
-            patient_id: data.patient_id,
-        });
+        await createVisit
+            .mutateAsync({
+                visit_date: data.visit_date,
+                doctor_id: data.doctor_id,
+                patient_id: data.patient_id,
+            })
+            .then(() => {
+                message.success('Visit berhasil dibuat');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
 

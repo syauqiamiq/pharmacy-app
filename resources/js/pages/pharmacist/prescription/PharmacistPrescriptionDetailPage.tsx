@@ -1,10 +1,11 @@
 import GeneralLogModal from '@/lib/components/atoms/log/GeneralLogModal';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { getPrescriptionStatusColor, getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
 import { IGeneralLogResponse } from '@/lib/interfaces/services/log.interface';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
-import { Button, Card, Skeleton, Space, Tag } from 'antd';
+import { App, Button, Card, Skeleton, Space, Tag } from 'antd';
 import InvoicePrescriptionModal from './components/InvoicePrescriptionModal';
 import ReviewPrescriptionModal from './components/ReviewPrescriptionModal';
 
@@ -36,6 +37,7 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
         data: logPrescriptionDialogData,
     } = useDialog();
 
+    const { message } = App.useApp();
     return (
         <>
             <DashboardLayout
@@ -88,10 +90,18 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                         type="primary"
                                         className="w-full !bg-orange-500 lg:w-auto"
                                         onClick={async () => {
-                                            await updatePrescription.mutateAsync({
-                                                prescription_id: prescriptionData.data.id,
-                                                status: 'DISPENSING',
-                                            });
+                                            await updatePrescription
+                                                .mutateAsync({
+                                                    prescription_id: prescriptionData.data.id,
+                                                    status: 'DISPENSING',
+                                                })
+                                                .then(() => {
+                                                    message.success('Resep berhasil diproses');
+                                                })
+                                                .catch((err) => {
+                                                    const errorMessage = handleApiErrorMessage(err);
+                                                    message.error(errorMessage);
+                                                });
                                         }}
                                     >
                                         Proses Obat
@@ -104,10 +114,18 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                             type="primary"
                                             className="w-full !bg-green-500 lg:w-auto"
                                             onClick={async () => {
-                                                await updatePrescription.mutateAsync({
-                                                    prescription_id: prescriptionData.data.id,
-                                                    status: 'DISPENSED',
-                                                });
+                                                await updatePrescription
+                                                    .mutateAsync({
+                                                        prescription_id: prescriptionData.data.id,
+                                                        status: 'DISPENSED',
+                                                    })
+                                                    .then(() => {
+                                                        message.success('Resep berhasil diserahkan ke pasien');
+                                                    })
+                                                    .catch((err) => {
+                                                        const errorMessage = handleApiErrorMessage(err);
+                                                        message.error(errorMessage);
+                                                    });
                                             }}
                                         >
                                             Selesaikan Obat
@@ -122,10 +140,18 @@ const PharmacistPrescriptionDetailPage = (props: IPharmacistPrescriptionDetailPa
                                             type="primary"
                                             className="w-full !bg-cyan-500 lg:w-auto"
                                             onClick={async () => {
-                                                await updatePrescription.mutateAsync({
-                                                    prescription_id: prescriptionData.data.id,
-                                                    status: 'DONE',
-                                                });
+                                                await updatePrescription
+                                                    .mutateAsync({
+                                                        prescription_id: prescriptionData.data.id,
+                                                        status: 'DONE',
+                                                    })
+                                                    .then(() => {
+                                                        message.success('Resep berhasil diselesaikan');
+                                                    })
+                                                    .catch((err) => {
+                                                        const errorMessage = handleApiErrorMessage(err);
+                                                        message.error(errorMessage);
+                                                    });
                                             }}
                                         >
                                             Tandai Selesai (DISERAHKAN KE PASIEN)

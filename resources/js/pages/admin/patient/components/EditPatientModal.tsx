@@ -1,7 +1,8 @@
 import { FormInput } from '@/lib/components/atoms/input';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useGetPatientById, useUpdatePatient } from '@/lib/services/patient.service';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Modal, Space } from 'antd';
+import { App, Modal, Space } from 'antd';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { formSchema } from '../constants/formSchema';
@@ -36,12 +37,21 @@ const EditPatientModal = ({ open, onCancel, data }: IEditPatientModalProps) => {
 
     const updatePatient = useUpdatePatient();
 
+    const { message } = App.useApp();
     const onSubmit = async (formData: any) => {
-        await updatePatient.mutateAsync({
-            patient_id: data.id,
-            name: formData.name,
-            medic_record_number: formData.medic_record_number,
-        });
+        await updatePatient
+            .mutateAsync({
+                patient_id: data.id,
+                name: formData.name,
+                medic_record_number: formData.medic_record_number,
+            })
+            .then(() => {
+                message.success('Pasien berhasil diperbarui');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
     return (

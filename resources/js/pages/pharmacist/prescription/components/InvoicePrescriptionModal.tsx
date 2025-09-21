@@ -1,10 +1,11 @@
 import { FormSelectInput } from '@/lib/components/atoms/input';
 import PrescriptionInvoicePdf from '@/lib/components/molecules/invoice/PrescriptionInvoicePdf';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { getPrescriptionInvoiceStatusText } from '@/lib/functions/prescription-invoice-helper.function';
 import { useGetPrescriptionInvoiceById, useUpdatePrescriptionInvoice } from '@/lib/services/prescription-invoice.service';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { PDFViewer as ReactPDFViewer } from '@react-pdf/renderer';
-import { Grid, Modal, Space, Tag } from 'antd';
+import { App, Grid, Modal, Space, Tag } from 'antd';
 import { format } from 'date-fns';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -40,11 +41,20 @@ const InvoicePrescriptionModal = ({ data, open, onCancel }: IInvoicePrescription
 
     const updatePrescriptionInvoice = useUpdatePrescriptionInvoice();
 
+    const { message } = App.useApp();
     const onSubmit = async (formData: any) => {
-        await updatePrescriptionInvoice.mutateAsync({
-            prescription_invoice_id: data.id,
-            status: formData.status,
-        });
+        await updatePrescriptionInvoice
+            .mutateAsync({
+                prescription_invoice_id: data.id,
+                status: formData.status,
+            })
+            .then(() => {
+                message.success('Invoice berhasil diperbarui');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
     return (

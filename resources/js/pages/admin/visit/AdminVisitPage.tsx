@@ -1,4 +1,5 @@
 import { BaseTable } from '@/lib/components/molecules/table';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { getVisitStatusColor, getVisitStatusText } from '@/lib/functions/visit-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
@@ -6,7 +7,7 @@ import { IVisitResponse } from '@/lib/interfaces/services/visit.interface';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useDeleteVisit, useGetAllVisit } from '@/lib/services/visit.service';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Space, Tag } from 'antd';
+import { App, Button, Space, Tag } from 'antd';
 import { format } from 'date-fns';
 import CreateVisitModal from './components/CreateVisitModal';
 import EditVisitModal from './components/EditVisitModal';
@@ -25,6 +26,8 @@ const AdminVisitPage = () => {
     const deleteVisit = useDeleteVisit();
 
     const isLoading = isLoadingVisits || deleteVisit.isPending;
+
+    const { message } = App.useApp();
 
     return (
         <>
@@ -85,9 +88,17 @@ const AdminVisitPage = () => {
                                             <DeleteOutlined
                                                 className="!text-red-500"
                                                 onClick={async () =>
-                                                    await deleteVisit.mutateAsync({
-                                                        visit_id: record.id,
-                                                    })
+                                                    await deleteVisit
+                                                        .mutateAsync({
+                                                            visit_id: record.id,
+                                                        })
+                                                        .then(() => {
+                                                            message.success('Visit berhasil dihapus');
+                                                        })
+                                                        .catch((err) => {
+                                                            const errorMessage = handleApiErrorMessage(err);
+                                                            message.error(errorMessage);
+                                                        })
                                                 }
                                             />
                                         </Space>

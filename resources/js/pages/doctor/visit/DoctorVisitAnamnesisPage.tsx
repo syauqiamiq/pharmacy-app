@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
 import { VITAL_SIGN_TYPES, VITAL_SIGN_UNITS } from '@/lib/constants/vital-sign';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { getVisitStatusColor, getVisitStatusText } from '@/lib/functions/visit-helper.function';
 import { ICreateAnamnesisPayload } from '@/lib/interfaces/services/anamnesis.interface';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
@@ -9,7 +10,7 @@ import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
 import { DeleteOutlined, FileOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from '@inertiajs/react';
-import { Button, Card, Col, Grid, Row, Skeleton, Space, Tag, Typography, UploadProps, message } from 'antd';
+import { App, Button, Card, Col, Grid, Row, Skeleton, Space, Tag, Typography, UploadProps } from 'antd';
 import Dragger from 'antd/es/upload/Dragger';
 import { useState } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
@@ -72,6 +73,8 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
         maxCount: 5,
     };
 
+    const { message } = App.useApp();
+
     const onSubmit = async (data: any) => {
         try {
             const visitId = props.visitId || 'dummy-visit-id-for-demo';
@@ -102,7 +105,8 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
             router.get(`/doctor/visit/${visitId}/detail`);
         } catch (error: any) {
             console.error('Error creating anamnesis:', error);
-            message.error(error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan anamnesis');
+
+            message.error(error?.response?.data?.error || 'Terjadi kesalahan saat menyimpan anamnesis');
         }
     };
 
@@ -179,10 +183,18 @@ const DoctorVisitAnamnesisPage = (props: IDoctorVisitAnamnesisPage) => {
                                         size="large"
                                         className="min-w-32 bg-green-500 hover:bg-green-600"
                                         onClick={async () =>
-                                            await updateVisit.mutateAsync({
-                                                visit_id: visitData.data.id,
-                                                status: 'IN_ROOM',
-                                            })
+                                            await updateVisit
+                                                .mutateAsync({
+                                                    visit_id: visitData.data.id,
+                                                    status: 'IN_ROOM',
+                                                })
+                                                .then(() => {
+                                                    message.success('Visit berhasil diperbarui');
+                                                })
+                                                .catch((err) => {
+                                                    const errorMessage = handleApiErrorMessage(err);
+                                                    message.error(errorMessage);
+                                                })
                                         }
                                         loading={updateVisit.isPending}
                                     >

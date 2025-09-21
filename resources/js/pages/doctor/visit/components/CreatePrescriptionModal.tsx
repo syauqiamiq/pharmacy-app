@@ -1,9 +1,10 @@
 import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useGetAllMedicine } from '@/lib/services/medicine.service';
 import { useCreatePrescription } from '@/lib/services/prescription.service';
 import { DeleteOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Modal, Space } from 'antd';
+import { App, Button, Modal, Space } from 'antd';
 import { useEffect } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { prescriptionSchema } from '../constants/prescriptionSchema';
@@ -57,13 +58,22 @@ const CreatePrescriptionModal = ({ anamnesisId, open, onCancel, doctorName }: IC
 
     const createPrescription = useCreatePrescription();
 
+    const { message } = App.useApp();
     const onSubmit = async (data: any) => {
-        await createPrescription.mutateAsync({
-            anamnesis_id: anamnesisId,
-            doctor_name: data.doctor_name,
-            doctor_note: data.doctor_note,
-            prescription_details: data.prescriptionDetails,
-        });
+        await createPrescription
+            .mutateAsync({
+                anamnesis_id: anamnesisId,
+                doctor_name: data.doctor_name,
+                doctor_note: data.doctor_note,
+                prescription_details: data.prescriptionDetails,
+            })
+            .then(() => {
+                message.success('Resep berhasil dibuat');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
     return (

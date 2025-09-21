@@ -1,7 +1,8 @@
 import { FormInput } from '@/lib/components/atoms/input';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useCreatePatient } from '@/lib/services/patient.service';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Modal, Space } from 'antd';
+import { App, Modal, Space } from 'antd';
 import { FormProvider, useForm } from 'react-hook-form';
 import { formSchema } from '../constants/formSchema';
 
@@ -25,11 +26,21 @@ const CreatePrescriptionModal = ({ open, onCancel }: ICreatePrescriptionModalPro
 
     const createPatient = useCreatePatient();
 
+    const { message } = App.useApp();
+
     const onSubmit = async (data: any) => {
-        await createPatient.mutateAsync({
-            name: data.name,
-            medic_record_number: data.medic_record_number,
-        });
+        await createPatient
+            .mutateAsync({
+                name: data.name,
+                medic_record_number: data.medic_record_number,
+            })
+            .then(() => {
+                message.success('Pasien berhasil ditambahkan');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
     return (

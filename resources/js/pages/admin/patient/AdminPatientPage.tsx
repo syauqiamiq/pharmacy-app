@@ -1,10 +1,11 @@
 import { BaseTable } from '@/lib/components/molecules/table';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useDialog } from '@/lib/hooks/useDialog';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 import { useDeletePatient, useGetAllPatient } from '@/lib/services/patient.service';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Space } from 'antd';
+import { App, Button, Space } from 'antd';
 import CreatePatientModal from './components/CreatePatientModal';
 import EditPatientModal from './components/EditPatientModal';
 
@@ -27,6 +28,8 @@ const AdminPatientPage = () => {
     const deletePatient = useDeletePatient();
 
     const isLoading = isLoadingPatients || deletePatient.isPending;
+
+    const { message } = App.useApp();
 
     return (
         <>
@@ -64,9 +67,17 @@ const AdminPatientPage = () => {
                                             <DeleteOutlined
                                                 className="!text-red-500"
                                                 onClick={async () =>
-                                                    await deletePatient.mutateAsync({
-                                                        patient_id: record.id,
-                                                    })
+                                                    await deletePatient
+                                                        .mutateAsync({
+                                                            patient_id: record.id,
+                                                        })
+                                                        .then(() => {
+                                                            message.success('Pasien berhasil dihapus');
+                                                        })
+                                                        .catch((err) => {
+                                                            const errorMessage = handleApiErrorMessage(err);
+                                                            message.error(errorMessage);
+                                                        })
                                                 }
                                             />
                                         </Space>

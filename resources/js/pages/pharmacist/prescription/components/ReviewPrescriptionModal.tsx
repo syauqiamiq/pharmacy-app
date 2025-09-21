@@ -1,10 +1,11 @@
 import { FormInput, FormInputArea, FormSelectInput } from '@/lib/components/atoms/input';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { useGetAllMedicine } from '@/lib/services/medicine.service';
 import { useGetPrescriptionById, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { DeleteOutlined } from '@ant-design/icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { usePage } from '@inertiajs/react';
-import { Button, Modal, Space } from 'antd';
+import { App, Button, Modal, Space } from 'antd';
 import { useEffect } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { prescriptionSchema } from '../constants/prescriptionSchema';
@@ -70,15 +71,24 @@ const ReviewPrescriptionModal = ({ data, open, onCancel }: IReviewPrescriptionMo
 
     const updatePrescription = useUpdatePrescription();
 
+    const { message } = App.useApp();
     const onSubmit = async (formData: any) => {
-        await updatePrescription.mutateAsync({
-            prescription_id: data.id,
-            pharmacist_id: formData.pharmacist_id,
-            pharmacist_name: formData.pharmacist_name,
-            pharmacist_note: formData.pharmacist_note,
-            status: formData.status,
-            prescription_details: formData.prescriptionDetails,
-        });
+        await updatePrescription
+            .mutateAsync({
+                prescription_id: data.id,
+                pharmacist_id: formData.pharmacist_id,
+                pharmacist_name: formData.pharmacist_name,
+                pharmacist_note: formData.pharmacist_note,
+                status: formData.status,
+                prescription_details: formData.prescriptionDetails,
+            })
+            .then(() => {
+                message.success('Resep berhasil diperbarui');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
     return (

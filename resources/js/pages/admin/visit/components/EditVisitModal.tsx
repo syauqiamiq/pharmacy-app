@@ -1,6 +1,7 @@
 import { DatePicker } from '@/lib/components/atoms/date-picker';
 import { FormSelectInput } from '@/lib/components/atoms/input';
 
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { onInfiniteScroll } from '@/lib/functions/infinite-scroll-helper';
 import { optionsWithDefaultValue } from '@/lib/functions/object-helper.function';
 import { useTableAsync } from '@/lib/hooks/useTableAsync';
@@ -8,7 +9,7 @@ import { useInfiniteGetAllDoctor } from '@/lib/services/doctor.service';
 import { useInfiniteGetAllPatient } from '@/lib/services/patient.service';
 import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Modal, Space, Spin } from 'antd';
+import { App, Modal, Space, Spin } from 'antd';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { formSchema } from '../constants/formSchema';
@@ -65,13 +66,22 @@ const EditVisitModal = ({ open, onCancel, data }: IEditVisitModalProps) => {
 
     const updateVisit = useUpdateVisit();
 
+    const { message } = App.useApp();
     const onSubmit = async (formData: any) => {
-        await updateVisit.mutateAsync({
-            visit_id: data.id,
-            visit_date: formData.visit_date,
-            doctor_id: formData.doctor_id,
-            patient_id: formData.patient_id,
-        });
+        await updateVisit
+            .mutateAsync({
+                visit_id: data.id,
+                visit_date: formData.visit_date,
+                doctor_id: formData.doctor_id,
+                patient_id: formData.patient_id,
+            })
+            .then(() => {
+                message.success('Visit berhasil diperbarui');
+            })
+            .catch((err) => {
+                const errorMessage = handleApiErrorMessage(err);
+                message.error(errorMessage);
+            });
         onCancel();
     };
 

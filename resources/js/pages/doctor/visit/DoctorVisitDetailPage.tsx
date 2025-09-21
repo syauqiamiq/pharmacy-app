@@ -2,6 +2,7 @@
 import DashboardLayout from '@/lib/layouts/DashboardLayout';
 
 import { BaseTable } from '@/lib/components/molecules/table';
+import { handleApiErrorMessage } from '@/lib/functions/api-error-handler.function';
 import { getPrescriptionStatusColor, getPrescriptionStatusText } from '@/lib/functions/prescription-helper.function';
 import { getVisitStatusColor, getVisitStatusText } from '@/lib/functions/visit-helper.function';
 import { useDialog } from '@/lib/hooks/useDialog';
@@ -10,7 +11,7 @@ import { useDownloadFile } from '@/lib/services/file.service';
 import { useDeletePrescription, useGetAllPrescriptionByAnamnesisId, useUpdatePrescription } from '@/lib/services/prescription.service';
 import { useGetVisitByID, useUpdateVisit } from '@/lib/services/visit.service';
 import { ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Popconfirm, Skeleton, Space, Tag, Typography } from 'antd';
+import { Alert, App, Button, Card, Popconfirm, Skeleton, Space, Tag, Typography } from 'antd';
 import CreatePrescriptionModal from './components/CreatePrescriptionModal';
 import DetailPrescriptionModal from './components/DetailPrescriptionModal';
 import EditPrescriptionModal from './components/EditPrescriptionModal';
@@ -55,6 +56,8 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
     const deletePrescription = useDeletePrescription();
     const downloadFile = useDownloadFile();
 
+    const { message } = App.useApp();
+
     return (
         <>
             <DashboardLayout
@@ -74,10 +77,18 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                     size="large"
                                     className="min-w-32 !bg-red-500 hover:!bg-red-600"
                                     onClick={async () =>
-                                        await updateVisit.mutateAsync({
-                                            visit_id: props.visitId as string,
-                                            status: 'DONE',
-                                        })
+                                        await updateVisit
+                                            .mutateAsync({
+                                                visit_id: props.visitId as string,
+                                                status: 'DONE',
+                                            })
+                                            .then(() => {
+                                                message.success('Visit berhasil diakhiri');
+                                            })
+                                            .catch((err) => {
+                                                const errorMessage = handleApiErrorMessage(err);
+                                                message.error(errorMessage);
+                                            })
                                     }
                                     loading={updateVisit.isPending}
                                 >
@@ -191,8 +202,8 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                 {data?.data?.anamnesis?.anamnesis_details?.map((v, i) => {
                                     return (
                                         <Card key={i} className="flex w-full shadow-sm">
-                                            <h3 className="text-xl font-bold">{v.key}</h3>
-                                            <h4 className="text-lg font-normal">
+                                            <h3 className="text-lg font-bold">{v.key}</h3>
+                                            <h4 className="text-md font-normal">
                                                 {v.value} {v.unit}
                                             </h4>
                                         </Card>
@@ -211,11 +222,19 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                     return (
                                         <Card key={i} className="shadow-sm">
                                             <div className="flex w-full flex-row items-center justify-between">
-                                                <h3 className="text-xl font-bold">{v.document_name}</h3>
+                                                <h3 className="text-md font-semibold">{v.document_name}</h3>
                                                 <EyeOutlined
                                                     className="text-xl !text-blue-500"
                                                     onClick={async () => {
-                                                        await downloadFile.mutateAsync({ url: v.url, filename: v.document_name });
+                                                        await downloadFile
+                                                            .mutateAsync({ url: v.url, filename: v.document_name })
+                                                            .then(() => {
+                                                                message.success('Dokumen berhasil diunduh');
+                                                            })
+                                                            .catch((err) => {
+                                                                const errorMessage = handleApiErrorMessage(err);
+                                                                message.error(errorMessage);
+                                                            });
                                                     }}
                                                 />
                                             </div>
@@ -282,10 +301,18 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                                                 okText="Tarik"
                                                                 cancelText="Batal"
                                                                 onConfirm={async () => {
-                                                                    await updatePrescription.mutateAsync({
-                                                                        prescription_id: record.id,
-                                                                        status: 'DRAFT',
-                                                                    });
+                                                                    await updatePrescription
+                                                                        .mutateAsync({
+                                                                            prescription_id: record.id,
+                                                                            status: 'DRAFT',
+                                                                        })
+                                                                        .then(() => {
+                                                                            message.success('Resep berhasil ditarik ke draft');
+                                                                        })
+                                                                        .catch((err) => {
+                                                                            const errorMessage = handleApiErrorMessage(err);
+                                                                            message.error(errorMessage);
+                                                                        });
                                                                 }}
                                                             >
                                                                 <ArrowLeftOutlined className="!text-red-500" />
@@ -298,9 +325,17 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                                                 okText="Hapus"
                                                                 cancelText="Batal"
                                                                 onConfirm={async () => {
-                                                                    await deletePrescription.mutateAsync({
-                                                                        prescription_id: record.id,
-                                                                    });
+                                                                    await deletePrescription
+                                                                        .mutateAsync({
+                                                                            prescription_id: record.id,
+                                                                        })
+                                                                        .then(() => {
+                                                                            message.success('Resep berhasil dihapus');
+                                                                        })
+                                                                        .catch((err) => {
+                                                                            const errorMessage = handleApiErrorMessage(err);
+                                                                            message.error(errorMessage);
+                                                                        });
                                                                 }}
                                                             >
                                                                 <DeleteOutlined className="!text-red-500" />
@@ -324,10 +359,18 @@ const DoctorVisitDetailPage = (props: IDoctorVisitDetailPageProps) => {
                                                                 okText="Lanjutkan"
                                                                 cancelText="Batal"
                                                                 onConfirm={async () => {
-                                                                    await updatePrescription.mutateAsync({
-                                                                        prescription_id: record.id,
-                                                                        status: 'PENDING_VALIDATION',
-                                                                    });
+                                                                    await updatePrescription
+                                                                        .mutateAsync({
+                                                                            prescription_id: record.id,
+                                                                            status: 'PENDING_VALIDATION',
+                                                                        })
+                                                                        .then(() => {
+                                                                            message.success('Resep berhasil dilanjutkan ke farmasi');
+                                                                        })
+                                                                        .catch((err) => {
+                                                                            const errorMessage = handleApiErrorMessage(err);
+                                                                            message.error(errorMessage);
+                                                                        });
                                                                 }}
                                                             >
                                                                 <ArrowRightOutlined className="!text-green-500" />
