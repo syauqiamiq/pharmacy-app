@@ -38,6 +38,10 @@ Aplikasi ini merupakan sistem manajemen farmasi modern yang dikembangkan untuk r
 - **Prettier** - Code Formatting
 - **PHP Inteliphense** - PHP Code Style
 
+## 📋 Live Preview
+
+- **Live Preview**: https://pharmacy-demo.okispace.my.id/
+
 ## 📋 Prerequisites
 
 ### System Requirements
