@@ -21,11 +21,9 @@ Route::apiResource('prescription', PrescriptionController::class)
     'check-roles:Pharmacist',
 ])
 ->middlewareFor(['store,destroy'], [
-    'check-roles:Doctor',
+    'check-roles:Doctor,Admin',
 ])
-->middlewareFor([ 'destroy'], [
-    'check-roles:Admin',
-])
+
 ->middlewareFor(['show','update'], [
     'check-roles:Doctor,Pharmacist,Admin',
 ]);
