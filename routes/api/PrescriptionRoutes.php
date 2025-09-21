@@ -20,7 +20,7 @@ Route::apiResource('prescription', PrescriptionController::class)
 ->middlewareFor(['index'], [
     'check-roles:Pharmacist',
 ])
-->middlewareFor(['store'], [
+->middlewareFor(['store,destroy'], [
     'check-roles:Doctor',
 ])
 ->middlewareFor([ 'destroy'], [
